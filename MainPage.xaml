@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:barkoder="clr-namespace:Plugin.Maui.Barkoder.Controls;assembly=Plugin.Maui.Barkoder"
+             x:Class="_TmpMaui.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+
+            <Label
+                x:Name="TitleLabel"
+                HorizontalOptions="Center"
+                VerticalOptions="CenterAndExpand" />
+
+            <barkoder:BarkoderView
+                x:Name="BKDView"
+                barkoder:LicenseKey="YOUR_LICENSE_KEY"
+                HeightRequest="300" />
+
+            <Button
+                x:Name="StartScanningBtn"
+                Text="Start Scanning"
+                Clicked="OnStartScanningBtnClicked"
+                HorizontalOptions="Fill" />
+
+            <Label
+                x:Name="TextualDataLbl"
+                HorizontalOptions="Fill" />
+
+            <Image
+                x:Name="OriginalImage"
+                HeightRequest="300" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
