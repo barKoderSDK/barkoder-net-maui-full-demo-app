@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="_TmpMaui.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:_TmpMaui.Models"
+    xmlns:local="clr-namespace:_TmpMaui.Views"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Image Source="bg.svg" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,*,Auto" Padding="0,8,0,0">
+            <!-- Top bar -->
+            <Grid Padding="20,30,20,10">
+                <Image Source="logo_barkoder.svg" HeightRequest="22" HorizontalOptions="Start" />
+            </Grid>
+
+            <!-- Content -->
+            <CollectionView
+                Grid.Row="1"
+                ItemsSource="{Binding Sections}"
+                Margin="0,0,0,96">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:HomeSection">
+                        <VerticalStackLayout Spacing="12" Padding="20,20,20,0">
+                            <Label Text="{Binding Title}" FontSize="13" FontAttributes="Bold" TextColor="#000" Padding="0,6,0,0" />
+                            <CollectionView
+                                ItemsSource="{Binding Items}"
+                                ItemsLayout="VerticalGrid, 3"
+                                Margin="0,0,0,6">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:HomeItem">
+                                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,6,0,6">
+                                            <Image Source="{Binding Icon}" HeightRequest="50" WidthRequest="50" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Label
+                                                Text="{Binding Label}"
+                                                FontSize="11"
+                                                FontAttributes="Bold"
+                                                TextColor="#333"
+                                                HorizontalTextAlignment="Center"
+                                                LineBreakMode="NoWrap" />
+                                            <VerticalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:HomePage}}, Path=ItemTappedCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </VerticalStackLayout.GestureRecognizers>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Bottom bar -->
+            <Grid Grid.Row="2" BackgroundColor="#fff" Padding="18,12,18,22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <VerticalStackLayout Grid.Column="0" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRecentClicked" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Image Source="recent.svg" HeightRequest="24" WidthRequest="24" />
+                    <Label Text="Recent" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAnyScanClicked" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Frame BackgroundColor="#E52E4C" CornerRadius="18" WidthRequest="54" HeightRequest="54" Padding="0" HasShadow="False">
+                        <Image Source="start.svg" HeightRequest="26" WidthRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Frame>
+                    <Label Text="Anyscan" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="2" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAboutClicked" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Image Source="info.svg" HeightRequest="24" WidthRequest="24" />
+                    <Label Text="About" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentPage>

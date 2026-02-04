@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="_TmpMaui.Views.BarcodeDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Image Source="bg.svg" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,*,Auto">
+            <Grid Padding="16,20" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <ImageButton Source="chevron.svg" Clicked="OnBackClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Barcode Details" FontSize="18" FontAttributes="Bold" TextColor="#000" VerticalOptions="Center" />
+            </Grid>
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="20" Spacing="12">
+                    <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="20" HeightRequest="200">
+                        <Grid>
+                            <Image x:Name="BarcodeImage" Aspect="AspectFit" IsVisible="False" />
+                            <Grid x:Name="BarcodePlaceholder" IsVisible="True" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                                <Image x:Name="PlaceholderIcon" HeightRequest="64" WidthRequest="64" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Label Text="DATA" FontSize="12" FontAttributes="Bold" TextColor="#E52E4C" Margin="4,0,0,0" />
+
+                    <CollectionView ItemsSource="{Binding Details}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="16" Margin="0,0,0,12">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Label}" FontSize="13" TextColor="#666" />
+                                        <Label Grid.Column="1" Text="{Binding Value}" FontSize="14" TextColor="#000" HorizontalTextAlignment="End" LineBreakMode="WordWrap" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid Grid.Row="2" BackgroundColor="White" Padding="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <VerticalStackLayout Grid.Column="0" Spacing="5" HorizontalOptions="Center">
+                    <ImageButton Source="icon_copy.svg" Clicked="OnCopyClicked" BackgroundColor="Transparent" HeightRequest="24" />
+                    <Label Text="Copy" FontSize="13" TextColor="#000" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="5" HorizontalOptions="Center">
+                    <ImageButton Source="icon_search.svg" Clicked="OnSearchClicked" BackgroundColor="Transparent" HeightRequest="24" />
+                    <Label Text="Search" FontSize="13" TextColor="#000" />
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentPage>

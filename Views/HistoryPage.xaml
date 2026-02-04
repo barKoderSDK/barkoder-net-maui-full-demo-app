@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="_TmpMaui.Views.HistoryPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Image Source="bg.svg" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,*">
+            <Grid Padding="16,20" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <ImageButton Source="chevron.svg" Clicked="OnBackClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Recent Scans" FontSize="18" FontAttributes="Bold" TextColor="#000" VerticalOptions="Center" />
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <CollectionView
+                    ItemsSource="{Binding Groups}"
+                    IsGrouped="True"
+                    Margin="0,6,0,0">
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding Title}" FontSize="11" FontAttributes="Bold" TextColor="#E52E4C" Margin="20,18,0,8" />
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout Spacing="0" HorizontalOptions="FillAndExpand">
+                                <Grid Padding="16,10" BackgroundColor="White" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10" HorizontalOptions="FillAndExpand">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border BackgroundColor="#f3f3f3" StrokeThickness="0" StrokeShape="RoundRectangle 10" WidthRequest="40" HeightRequest="40" Grid.Column="0">
+                                        <Grid>
+                                            <Image Source="{Binding ImageSource}" Aspect="AspectFill" />
+                                            <Image Source="{Binding PlaceholderIcon}" IsVisible="{Binding ShowPlaceholder}" HeightRequest="24" WidthRequest="24" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="{Binding Text}" FontSize="15" FontAttributes="Bold" TextColor="#000" LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Type}" FontSize="11" TextColor="#666" />
+                                    </VerticalStackLayout>
+
+                                    <Label Grid.Column="5" Text="{Binding CountText}" FontSize="12" TextColor="#888" IsVisible="{Binding HasCount}" VerticalTextAlignment="Center" HorizontalOptions="End" />
+                                    <ImageButton Grid.Column="6" Source="info.svg" BackgroundColor="Transparent" Clicked="OnInfoClicked" CommandParameter="{Binding .}" HeightRequest="18" WidthRequest="18" Padding="0" Margin="0" HorizontalOptions="End" VerticalOptions="Center" />
+                                </Grid>
+                                <BoxView HeightRequest="1" BackgroundColor="#f0f0f0" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </Grid>
+    </Grid>
+</ContentPage>

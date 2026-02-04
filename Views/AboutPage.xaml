@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="_TmpMaui.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <Image Source="bg.svg" Aspect="AspectFill" />
+
+        <Grid RowDefinitions="Auto,*">
+            <Grid Padding="16,20" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <ImageButton Source="chevron.svg" Clicked="OnBackClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" VerticalOptions="Center" />
+                <Image Grid.Column="1" Source="logo_barkoder.svg" HeightRequest="18" HorizontalOptions="Start" />
+            </Grid>
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Padding="20" Spacing="16">
+                    <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="20" Margin="0,4,0,0">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Barcode Scanner SDK by barKoder" FontSize="15" FontAttributes="Bold" TextColor="#000" />
+                            <Label FontSize="12" TextColor="#333" LineHeight="20">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Barcode Scanner Demo by barKoder" TextColor="#E52E4C" FontAttributes="Bold">
+                                            <Span.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnWebsiteTapped" />
+                                            </Span.GestureRecognizers>
+                                        </Span>
+                                        <Span Text=" showcases the enterprise-grade performance of the barKoder Barcode Scanner SDK along with most of its features in a wide variety of scanning scenarios." />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label FontSize="12" TextColor="#333" LineHeight="20" Margin="0,12,0,0">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Whether from " />
+                                        <Span Text="One-Dimensional" TextColor="#E52E4C" FontAttributes="Bold">
+                                            <Span.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnOneDTapped" />
+                                            </Span.GestureRecognizers>
+                                        </Span>
+                                        <Span Text=" or " />
+                                        <Span Text="Two-Dimensional" TextColor="#E52E4C" FontAttributes="Bold">
+                                            <Span.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnTwoDTapped" />
+                                            </Span.GestureRecognizers>
+                                        </Span>
+                                        <Span Text=" barcodes, the barKoder API can capture the data reliably, accurately and surprisingly fast, even under very challenging conditions and environments." />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                            <Label FontSize="12" TextColor="#333" Margin="0,12,0,0" Text="You can test the barKoder Barcode Scanner SDK at your own convenience by signing up for a free trial:" />
+
+                            <Button Text="Get a free trial demo" Clicked="OnTrialClicked" BackgroundColor="#E52E4C" TextColor="White" CornerRadius="22" Padding="26,12" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="20">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Text="Info" FontSize="15" FontAttributes="Bold" TextColor="#000" Margin="0,0,0,8" />
+                            <Grid Padding="0,16" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="1" Text="{Binding DeviceId}" FontSize="13" TextColor="#000" FontAttributes="Bold" />
+                                <Label Text="Device ID" FontSize="13" TextColor="#666" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="#f0f0f0" />
+                            <Grid Padding="0,16" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="1" Text="{Binding AppVersion}" FontSize="13" TextColor="#E52E4C" FontAttributes="Bold" />
+                                <Label Text="App Version" FontSize="13" TextColor="#666" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="#f0f0f0" />
+                            <Grid Padding="0,16" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="1" Text="{Binding SdkVersion}" FontSize="13" TextColor="#000" FontAttributes="Bold" />
+                                <Label Text="SDK Version" FontSize="13" TextColor="#666" />
+                            </Grid>
+                            <BoxView HeightRequest="1" BackgroundColor="#f0f0f0" />
+                            <Grid Padding="0,16" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="1" Text="{Binding LibVersion}" FontSize="13" TextColor="#000" FontAttributes="Bold" />
+                                <Label Text="Lib Version" FontSize="13" TextColor="#666" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

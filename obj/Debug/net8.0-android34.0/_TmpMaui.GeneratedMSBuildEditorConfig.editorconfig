@@ -45,3 +45,33 @@ build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
 build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[C:/dev/barkoder_app_maui/Views/AboutPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Views.AboutPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\AboutPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\AboutPage.xaml
+
+[C:/dev/barkoder_app_maui/Views/BarcodeDetailsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Views.BarcodeDetailsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\BarcodeDetailsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\BarcodeDetailsPage.xaml
+
+[C:/dev/barkoder_app_maui/Views/HistoryPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Views.HistoryPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\HistoryPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\HistoryPage.xaml
+
+[C:/dev/barkoder_app_maui/Views/HomePage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Views.HomePage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\HomePage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\HomePage.xaml
+
+[C:/dev/barkoder_app_maui/Views/ScannerPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = _TmpMaui.Views.ScannerPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\ScannerPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\ScannerPage.xaml
