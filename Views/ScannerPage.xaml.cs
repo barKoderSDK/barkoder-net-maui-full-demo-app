@@ -108,7 +108,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     public string ActiveBarcodeText { get; private set; } = string.Empty;
     public bool HasActiveBarcodeText => !string.IsNullOrWhiteSpace(ActiveBarcodeText);
 
-    public string ZoomIcon => _zoomLevel <= 1.0f ? "zoom_out.svg" : "zoom_in.svg";
+    public string ZoomIcon => _zoomLevel <= 1.0f ? "zoom_in.svg" : "zoom_out.svg";
     public string FlashIcon => _isFlashOn ? "flash_off.svg" : "flash_on.svg";
 
     public string ResultHeaderText
@@ -645,19 +645,17 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         SettingsContainer.Children.Clear();
 
         AddSectionHeader("General Settings");
-        foreach (var item in GetGeneralSettings())
+        var generalSettings = GetGeneralSettings().ToList();
+        if (generalSettings.Count > 0)
         {
-            SettingsContainer.Children.Add(CreateSettingItem(item));
+            SettingsContainer.Children.Add(CreateSettingsGroup(generalSettings));
         }
 
         var decoding = GetDecodingSettings().ToList();
         if (decoding.Count > 0)
         {
             AddSectionHeader("Decoding Settings");
-            foreach (var item in decoding)
-            {
-                SettingsContainer.Children.Add(CreateSettingItem(item));
-            }
+            SettingsContainer.Children.Add(CreateSettingsGroup(decoding));
         }
 
         var group1D = GetFilteredBarcodeTypes("1D").ToList();
@@ -673,28 +671,6 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             AddSectionHeader("2D Barcodes");
             SettingsContainer.Children.Add(CreateBarcodeGroup(group2D, "2D"));
         }
-
-        var reset = new Label
-        {
-            Text = "Reset All Settings",
-            FontSize = 16,
-            TextColor = Color.FromArgb("#E52E4C"),
-            HorizontalTextAlignment = TextAlignment.Center,
-            Margin = new Thickness(0, 10, 0, 40)
-        };
-        var resetTap = new TapGestureRecognizer();
-        resetTap.Tapped += (_, _) =>
-        {
-            _settings = ScannerConfig.GetInitialSettings(Mode);
-            _enabledTypes = ScannerConfig.GetInitialEnabledTypes(Mode);
-            ApplySettings();
-            ApplyBarcodeTypes();
-            UpdateActiveBarcodeText();
-            _ = SaveSettingsAsync();
-            RenderSettings();
-        };
-        reset.GestureRecognizers.Add(resetTap);
-        SettingsContainer.Children.Add(reset);
     }
 
     private void AddSectionHeader(string title)
@@ -705,8 +681,21 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             FontSize = 14,
             FontAttributes = FontAttributes.Bold,
             TextColor = Color.FromArgb("#E52E4C"),
-            Margin = new Thickness(4, 16, 0, 8)
+            Margin = new Thickness(4, 18, 0, 8)
         });
+    }
+
+    private View CreateSettingsGroup(IReadOnlyList<SettingItem> items)
+    {
+        var container = CreateGroupContainer();
+        var stack = new VerticalStackLayout { Spacing = 0 };
+        foreach (var item in items)
+        {
+            stack.Children.Add(CreateSettingRow(item));
+        }
+
+        container.Content = stack;
+        return container;
     }
 
     private View CreateBarcodeGroup(List<(string Id, string Label)> items, string category)
@@ -769,7 +758,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         return container;
     }
 
-    private View CreateSettingItem(SettingItem item)
+    private View CreateSettingRow(SettingItem item)
     {
         if (item.Type == SettingItemType.Switch)
         {
@@ -788,24 +777,24 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             }, item.IsLast);
         }
 
-        return CreateDropdownRow(item);
+        return CreateDropdownRow(item, item.IsLast);
     }
-    private View CreateDropdownRow(SettingItem item)
+    private View CreateDropdownRow(SettingItem item, bool isLast)
     {
-        var container = CreateGroupContainer();
-        var grid = new Grid { Padding = new Thickness(12), ColumnDefinitions = new ColumnDefinitionCollection
+        var grid = new Grid { Padding = new Thickness(12, 12), ColumnDefinitions = new ColumnDefinitionCollection
         {
             new ColumnDefinition { Width = GridLength.Star },
             new ColumnDefinition { Width = GridLength.Auto }
         }};
 
-        var label = new Label { Text = item.Label, FontSize = 14, TextColor = Color.FromArgb("#000") };
-        var valueLabel = new Label { Text = item.SelectedLabel, FontSize = 14, TextColor = Color.FromArgb("#666") };
+        var label = new Label { Text = item.Label, FontSize = 15, TextColor = Color.FromArgb("#1B1B1B"), VerticalOptions = LayoutOptions.Center };
+        var valueLabel = new Label { Text = item.SelectedLabel, FontSize = 15, TextColor = Color.FromArgb("#616161"), VerticalOptions = LayoutOptions.Center };
 
         grid.Children.Add(label);
         var valueStack = new HorizontalStackLayout
         {
             Spacing = 8,
+            VerticalOptions = LayoutOptions.Center,
             Children =
             {
                 valueLabel,
@@ -843,23 +832,39 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         };
         grid.GestureRecognizers.Add(tap);
 
-        container.Content = grid;
-        return container;
+        if (!isLast)
+        {
+            var divider = new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#ECECEC") };
+            var layout = new VerticalStackLayout { Spacing = 0 };
+            layout.Children.Add(grid);
+            layout.Children.Add(divider);
+            return layout;
+        }
+
+        return grid;
     }
 
     private View CreateSwitchRow(string label, bool value, Action<bool> onToggle, bool isLast)
     {
-        var grid = new Grid { Padding = new Thickness(10), ColumnDefinitions = new ColumnDefinitionCollection
+        var grid = new Grid { Padding = new Thickness(12, 0, 0, 0), ColumnDefinitions = new ColumnDefinitionCollection
         {
             new ColumnDefinition { Width = GridLength.Star },
             new ColumnDefinition { Width = GridLength.Auto }
         }};
 
-        var textLabel = new Label { Text = label, FontSize = 14, TextColor = Color.FromArgb("#000") };
+        var textLabel = new Label { Text = label, FontSize = 15, TextColor = Color.FromArgb("#1B1B1B"), VerticalOptions = LayoutOptions.Center, Margin = new Thickness(0) };
         Grid.SetColumn(textLabel, 0);
         Grid.SetRow(textLabel, 0);
         grid.Children.Add(textLabel);
-        var toggle = new Switch { IsToggled = value, OnColor = Color.FromArgb("#E52E4C"), ThumbColor = Colors.White };
+        var toggle = new Switch
+        {
+            IsToggled = value,
+            OnColor = Color.FromArgb("#E52E4C"),
+            ThumbColor = Color.FromArgb("#E6E6E6"),
+            Scale = 1.06,
+            HorizontalOptions = LayoutOptions.End,
+            VerticalOptions = LayoutOptions.Center
+        };
         toggle.Toggled += (_, args) => onToggle(args.Value);
         Grid.SetColumn(toggle, 1);
         Grid.SetRow(toggle, 0);
@@ -867,7 +872,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
         if (!isLast)
         {
-            var divider = new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#F0F0F0"), Margin = new Thickness(0, 0, 0, -1) };
+            var divider = new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#ECECEC") };
             var layout = new VerticalStackLayout { Spacing = 0 };
             layout.Children.Add(grid);
             layout.Children.Add(divider);
@@ -883,9 +888,9 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             BackgroundColor = Colors.White,
             StrokeThickness = 0,
-            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(16) },
+            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(14) },
             Padding = 0,
-            Margin = new Thickness(0, 0, 0, 12)
+            Margin = new Thickness(0, 0, 0, 6)
         };
     }
 
@@ -912,8 +917,6 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
         items.Add(SettingItem.Switch("Beep on Success", "beepOnSuccess", _settings.BeepOnSuccess, val => _settings.BeepOnSuccess = val));
         items.Add(SettingItem.Switch("Vibrate on Success", "vibrateOnSuccess", _settings.VibrateOnSuccess, val => _settings.VibrateOnSuccess = val));
-        items.Add(SettingItem.Switch("Show Result Sheet", "showResultSheet", _settings.ShowResultSheet, val => _settings.ShowResultSheet = val));
-
         if (Mode != ScannerModes.Dpm && Mode != ScannerModes.ArMode && Mode != ScannerModes.Vin && Mode != ScannerModes.Mrz && Mode != ScannerModes.Dotcode)
         {
             items.Add(SettingItem.Switch("Scan Blurred UPC/EAN", "scanBlurred", _settings.ScanBlurred, val => _settings.ScanBlurred = val));
