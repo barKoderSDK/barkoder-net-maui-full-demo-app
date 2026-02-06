@@ -2,9 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using _TmpMaui.Models;
-using _TmpMaui.Services;
-using _TmpMaui.Utils;
+using BarkoderMaui.Models;
+using BarkoderMaui.Services;
+using BarkoderMaui.Utils;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
 using Microsoft.Maui.Controls.Shapes;
@@ -15,7 +15,7 @@ using Plugin.Maui.Barkoder.Enums;
 using Plugin.Maui.Barkoder.Handlers;
 using Plugin.Maui.Barkoder.Interfaces;
 
-namespace _TmpMaui.Views;
+namespace BarkoderMaui.Views;
 
 [QueryProperty(nameof(Mode), "mode")]
 [QueryProperty(nameof(SessionId), "sessionId")]
@@ -51,6 +51,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _mode = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(IsGalleryMode));
         }
     }
 
@@ -73,6 +74,8 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _isScanningPaused = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ShowTapOverlayCenter));
+            OnPropertyChanged(nameof(ShowTapOverlayAboveExpanded));
         }
     }
 
@@ -85,6 +88,8 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             OnPropertyChanged();
             OnPropertyChanged(nameof(ShowTopBar));
             OnPropertyChanged(nameof(ShowBottomControls));
+            OnPropertyChanged(nameof(ShowTapOverlayCenter));
+            OnPropertyChanged(nameof(ShowTapOverlayAboveExpanded));
         }
     }
 
@@ -100,6 +105,9 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             _isResultSheetExpanded = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ExpandLabel));
+            OnPropertyChanged(nameof(ShowTapOverlayCenter));
+            OnPropertyChanged(nameof(ShowTapOverlayAboveExpanded));
+            OnPropertyChanged(nameof(TapOverlayExpandedMargin));
         }
     }
 
@@ -131,6 +139,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _expandedSheetHeight = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(TapOverlayExpandedMargin));
         }
     }
 
@@ -143,6 +152,11 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             OnPropertyChanged();
         }
     }
+
+    public bool ShowTapOverlayCenter => IsScanningPaused && !IsSettingsVisible && !IsResultSheetExpanded;
+    public bool ShowTapOverlayAboveExpanded => IsScanningPaused && !IsSettingsVisible && IsResultSheetExpanded;
+    public Thickness TapOverlayExpandedMargin => new Thickness(20, 0, 20, ExpandedSheetHeight + 12);
+    public bool IsGalleryMode => string.Equals(Mode, ScannerModes.Gallery, StringComparison.OrdinalIgnoreCase);
 
     public ScannerPage()
     {
@@ -175,12 +189,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         }
 
         _initialized = true;
-        await BKDView.whenScannerReady();
-        BKDView.InitCameraProperties();
-
         await LoadSettingsAsync();
-        ApplySettings();
-        ApplyBarcodeTypes();
         UpdateActiveBarcodeText();
 
         if (_lastSessionId != _sessionId)
@@ -189,15 +198,21 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             _lastSessionId = _sessionId;
         }
 
-        if (Mode == ScannerModes.Gallery)
+        if (IsGalleryMode)
         {
-            await Task.Delay(400);
+            _isResultSheetHidden = true;
+            UpdateResultSheetBindings();
+            await Task.Delay(100);
             await ScanImageFromGalleryAsync();
+            return;
         }
-        else
-        {
-            StartScanning();
-        }
+
+        await BKDView.whenScannerReady();
+        BKDView.InitCameraProperties();
+        ApplySettings();
+        ApplyBarcodeTypes();
+
+        StartScanning();
     }
 
     private void ResetSession()
@@ -222,10 +237,6 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             if (saved.EnabledTypes.Count > 0)
             {
                 _enabledTypes = saved.EnabledTypes;
-                if (Mode != ScannerModes.Vin)
-                {
-                    _enabledTypes["ocrText"] = false;
-                }
                 if (Mode != ScannerModes.Mrz)
                 {
                     _enabledTypes["idDocument"] = false;
@@ -234,10 +245,9 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
             _settings = saved.ScannerSettings ?? _settings;
         }
-
         if (Mode != ScannerModes.Mrz)
         {
-            _enabledTypes["idDocument"] = false;
+            _enabledTypes["idDocument"]  = false;
         }
 
         RenderSettings();
@@ -277,18 +287,27 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
         if (Mode == ScannerModes.Vin)
         {
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.QR, true);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.Datamatrix, true);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.Code128, true);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.Code39, true);
+
             BKDView.SetEnableVINRestrictions(true);
-            BKDView.SetRegionOfInterest(0, 35, 100, 30);
-            if (_enabledTypes.TryGetValue("ocrText", out var ocrEnabled) && ocrEnabled)
-            {
-                BKDView.SetCustomOption("enable_ocr_functionality", 1);
-            }
+            BKDView.SetRegionOfInterestVisible(true);
+            BKDView.SetRegionOfInterest(0, 30, 100, 40);
+
+            BKDView.SetDecodingSpeed(DecodingSpeed.Slow);
+            BKDView.SetBarkoderResolution(BarkoderResolution.FHD);
         }
         else if (Mode == ScannerModes.Dpm)
         {
             BKDView.SetBarcodeTypeEnabled(BarcodeType.Datamatrix, true);
             BKDView.SetDatamatrixDpmModeEnabled(true);
+            BKDView.SetRegionOfInterestVisible(true);
             BKDView.SetRegionOfInterest(40, 40, 20, 10);
+
+            BKDView.SetDecodingSpeed(DecodingSpeed.Slow);
+            BKDView.SetBarkoderResolution(BarkoderResolution.FHD);
         }
         else if (Mode == ScannerModes.ArMode)
         {
@@ -316,7 +335,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             }
         }
 
-        if (Mode != ScannerModes.Mrz)
+        if (Mode != ScannerModes.Mrz && Mode != ScannerModes.Gallery)
         {
             if (BarcodeTypeMapper.TryGet("idDocument", out var idDocType))
             {
@@ -345,8 +364,11 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
     private void ResumeScanning()
     {
+        _isResultSheetHidden = true;
         IsScanningPaused = false;
         FrozenImage.Source = null;
+        IsResultSheetExpanded = false;
+        UpdateResultSheetBindings();
         StartScanning();
     }
 
@@ -354,6 +376,37 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     {
         if (result == null || result.Length == 0)
         {
+            if (IsGalleryMode)
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await DisplayAlert("No barcode found", "No barcode was detected in the selected image.", "OK");
+                    await Shell.Current.GoToAsync("..");
+                });
+            }
+            return;
+        }
+
+        if (IsGalleryMode)
+        {
+            var display = thumbnails?.FirstOrDefault() ?? originalImageSource;
+            var first = result[0];
+            var item = new ScannedItem
+            {
+                Text = first.TextualData,
+                Type = first.BarcodeTypeName,
+                Image = display
+            };
+            _ = HistoryService.AddScanAsync(item);
+            var currentPage = this;
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync(nameof(BarcodeDetailsPage), new Dictionary<string, object>
+                {
+                    ["Item"] = item
+                });
+                Shell.Current.Navigation.RemovePage(currentPage);
+            });
             return;
         }
 
@@ -367,6 +420,30 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             Type = decoded.BarcodeTypeName,
             Image = displayImage
         }).ToList();
+
+        _ = Task.Run(async () =>
+        {
+            if (displayImage == null)
+            {
+                return;
+            }
+
+            var imagePath = await HistoryService.SaveImageAsync(displayImage);
+            if (string.IsNullOrWhiteSpace(imagePath))
+            {
+                return;
+            }
+
+            var fileSource = ImageSource.FromFile(imagePath);
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                foreach (var item in newItems)
+                {
+                    item.ImagePath = imagePath;
+                    item.Image = fileSource;
+                }
+            });
+        });
 
         foreach (var item in newItems)
         {
@@ -480,6 +557,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             var file = await MediaPicker.PickPhotoAsync();
             if (file == null)
             {
+                await Shell.Current.GoToAsync("..");
                 return;
             }
 
@@ -487,7 +565,14 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             var base64 = Convert.ToBase64String(ms.ToArray());
-            BKDView.ScanImage(base64, this);
+            await BKDView.whenScannerReady();
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ApplySettings();
+                ApplyBarcodeTypes();
+                UpdateActiveBarcodeText();
+                BKDView.ScanImage(base64, this);
+            });
         }
         catch
         {
@@ -528,6 +613,8 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             {
             }
 
+            _isResultSheetHidden = true;
+            UpdateResultSheetBindings();
             IsSettingsVisible = true;
         });
     }
@@ -621,10 +708,33 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         IsResultSheetExpanded = false;
     }
 
+    private void OnExpandedBackgroundTapped(object sender, EventArgs e)
+    {
+        IsResultSheetExpanded = false;
+    }
+
     private void OnResultSheetClose(object sender, EventArgs e)
     {
         _isResultSheetHidden = true;
         UpdateResultSheetBindings();
+    }
+
+    private void OnSheetHandlePanUpdated(object sender, PanUpdatedEventArgs e)
+    {
+        if (e.StatusType != GestureStatus.Completed)
+        {
+            return;
+        }
+
+        const double swipeThreshold = 30;
+        if (!IsResultSheetExpanded && e.TotalY < -swipeThreshold)
+        {
+            IsResultSheetExpanded = true;
+        }
+        else if (IsResultSheetExpanded && e.TotalY > swipeThreshold)
+        {
+            IsResultSheetExpanded = false;
+        }
     }
 
     private async void OnDetailsClicked(ScannedItemView? item)
@@ -1014,11 +1124,13 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         }
         else if (Mode == ScannerModes.Vin)
         {
-            list = list.Where(t => new[] { "code39", "code128", "datamatrix", "qr", "ocrText" }.Contains(t.Id)).ToList();
+            list = list.Where(t => new[] { "code39", "code128", "datamatrix", "qr" }.Contains(t.Id)).ToList();
         }
         else if (Mode == ScannerModes.Mrz)
         {
-            return Enumerable.Empty<(string Id, string Label)>();
+            return category == "2D"
+                ? list.Where(t => t.Id == "idDocument").ToList()
+                : Enumerable.Empty<(string Id, string Label)>();
         }
         else if (Mode == ScannerModes.Mode1D && category == "2D")
         {
@@ -1032,6 +1144,11 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         if (Mode != ScannerModes.Vin)
         {
             list = list.Where(t => t.Id != "ocrText").ToList();
+        }
+
+        if (Mode != ScannerModes.Mrz)
+        {
+            list = list.Where(t => t.Id != "idDocument").ToList();
         }
 
         return list;
@@ -1101,3 +1218,4 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         Dropdown
     }
 }
+

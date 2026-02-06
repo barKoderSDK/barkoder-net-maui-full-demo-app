@@ -1,6 +1,6 @@
 using Plugin.Maui.Barkoder.Enums;
 
-namespace _TmpMaui.Models;
+namespace BarkoderMaui.Models;
 
 public class ScannerSettings
 {
@@ -25,3 +25,4 @@ public class ScannerSettings
     public BarkoderAROverlayRefresh ArOverlayRefresh { get; set; }
     public bool ArDoubleTapToFreeze { get; set; }
 }
+

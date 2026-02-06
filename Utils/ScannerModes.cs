@@ -1,4 +1,4 @@
-namespace _TmpMaui.Utils;
+namespace BarkoderMaui.Utils;
 
 public static class ScannerModes
 {
@@ -15,3 +15,4 @@ public static class ScannerModes
     public const string Gallery = "gallery";
     public const string AnyScan = "v1";
 }
+

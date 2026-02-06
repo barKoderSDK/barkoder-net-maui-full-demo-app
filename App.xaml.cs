@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace _TmpMaui;
+namespace BarkoderMaui;
 
 public partial class App : Application
 {

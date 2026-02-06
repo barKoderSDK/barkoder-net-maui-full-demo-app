@@ -1,7 +1,7 @@
 using System.Text.Json;
-using _TmpMaui.Models;
+using BarkoderMaui.Models;
 
-namespace _TmpMaui.Services;
+namespace BarkoderMaui.Services;
 
 public static class HistoryService
 {
@@ -91,7 +91,7 @@ public static class HistoryService
         return Task.CompletedTask;
     }
 
-    private static async Task<string?> SaveImageAsync(ImageSource imageSource)
+    public static async Task<string?> SaveImageAsync(ImageSource imageSource)
     {
         try
         {
@@ -133,3 +133,4 @@ public static class HistoryService
         }
     }
 }
+

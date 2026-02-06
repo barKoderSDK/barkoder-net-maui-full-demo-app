@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using _TmpMaui.Models;
-using _TmpMaui.Services;
-using _TmpMaui.Utils;
+using BarkoderMaui.Models;
+using BarkoderMaui.Services;
+using BarkoderMaui.Utils;
 
-namespace _TmpMaui.Views;
+namespace BarkoderMaui.Views;
 
 public partial class HistoryPage : ContentPage
 {
@@ -134,3 +134,4 @@ public partial class HistoryPage : ContentPage
         public string? ImagePath { get; set; }
     }
 }
+

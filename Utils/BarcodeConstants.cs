@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using _TmpMaui.Models;
+using BarkoderMaui.Models;
 
-namespace _TmpMaui.Utils;
+namespace BarkoderMaui.Utils;
 
 public static class BarcodeConstants
 {
@@ -86,3 +86,4 @@ public static class BarcodeConstants
             }
         });
 }
+

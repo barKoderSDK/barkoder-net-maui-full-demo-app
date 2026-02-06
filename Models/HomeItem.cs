@@ -1,4 +1,4 @@
-namespace _TmpMaui.Models;
+namespace BarkoderMaui.Models;
 
 public class HomeItem
 {
@@ -9,3 +9,4 @@ public class HomeItem
     public string? Url { get; set; }
     public string? Action { get; set; }
 }
+

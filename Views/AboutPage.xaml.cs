@@ -1,7 +1,7 @@
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Storage;
 
-namespace _TmpMaui.Views;
+namespace BarkoderMaui.Views;
 
 public partial class AboutPage : ContentPage
 {
@@ -61,3 +61,4 @@ public partial class AboutPage : ContentPage
         await Launcher.Default.OpenAsync("https://barkoder.com/barcode-types#2D-barcodes");
     }
 }
+

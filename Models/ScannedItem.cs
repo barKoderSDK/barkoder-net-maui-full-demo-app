@@ -1,4 +1,4 @@
-namespace _TmpMaui.Models;
+namespace BarkoderMaui.Models;
 
 public class ScannedItem
 {
@@ -7,3 +7,4 @@ public class ScannedItem
     public ImageSource? Image { get; set; }
     public string? ImagePath { get; set; }
 }
+

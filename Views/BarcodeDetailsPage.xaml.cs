@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
-using _TmpMaui.Models;
-using _TmpMaui.Utils;
+using BarkoderMaui.Models;
+using BarkoderMaui.Utils;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
 
-namespace _TmpMaui.Views;
+namespace BarkoderMaui.Views;
 
 [QueryProperty(nameof(Item), "Item")]
 public partial class BarcodeDetailsPage : ContentPage
@@ -141,3 +141,4 @@ public partial class BarcodeDetailsPage : ContentPage
         public string Value { get; }
     }
 }
+

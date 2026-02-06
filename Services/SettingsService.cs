@@ -1,7 +1,7 @@
 using System.Text.Json;
-using _TmpMaui.Models;
+using BarkoderMaui.Models;
 
-namespace _TmpMaui.Services;
+namespace BarkoderMaui.Services;
 
 public class SavedSettings
 {
@@ -64,3 +64,4 @@ public static class SettingsService
         await File.WriteAllTextAsync(SettingsPath, output);
     }
 }
+

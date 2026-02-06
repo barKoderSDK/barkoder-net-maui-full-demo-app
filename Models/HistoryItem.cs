@@ -1,4 +1,4 @@
-namespace _TmpMaui.Models;
+namespace BarkoderMaui.Models;
 
 public class HistoryItem
 {
@@ -8,3 +8,4 @@ public class HistoryItem
     public long Timestamp { get; set; }
     public int Count { get; set; }
 }
+

@@ -1,7 +1,7 @@
 using Plugin.Maui.Barkoder.Enums;
-using _TmpMaui.Models;
+using BarkoderMaui.Models;
 
-namespace _TmpMaui.Utils;
+namespace BarkoderMaui.Utils;
 
 public static class ScannerConfig
 {
@@ -40,9 +40,13 @@ public static class ScannerConfig
             {
                 types[id] = id == "idDocument";
             }
+            else if (mode == ScannerModes.Gallery)
+            {
+                types[id] = true;
+            }
             else if (mode == ScannerModes.Vin)
             {
-                types[id] = new[] { "code39", "code128", "qr", "datamatrix", "ocrText" }.Contains(id);
+                types[id] = new[] { "code39", "code128", "qr", "datamatrix" }.Contains(id);
             }
             else if (mode == ScannerModes.ArMode)
             {
@@ -54,7 +58,7 @@ public static class ScannerConfig
             }
         }
 
-        if (mode != ScannerModes.Mrz)
+        if (mode != ScannerModes.Mrz && mode != ScannerModes.Gallery)
         {
             types["idDocument"] = false;
         }
@@ -70,11 +74,11 @@ public static class ScannerConfig
             LocationInPreview = true,
             RegionOfInterest = false,
             BeepOnSuccess = true,
-            VibrateOnSuccess = true,
+            VibrateOnSuccess = false,
             ScanBlurred = false,
             ScanDeformed = false,
             ContinuousScanning = false,
-            ContinuousThreshold = 0,
+            ContinuousThreshold = 5,
             ShowResultSheet = true,
             DecodingSpeed = DecodingSpeed.Normal,
             Resolution = BarkoderResolution.HD,
@@ -89,6 +93,7 @@ public static class ScannerConfig
         {
             case ScannerModes.Continuous:
                 settings.ContinuousScanning = true;
+                settings.ContinuousThreshold = 5;
                 break;
             case ScannerModes.Multiscan:
                 settings.ContinuousScanning = true;
@@ -135,3 +140,4 @@ public static class ScannerConfig
         return settings;
     }
 }
+

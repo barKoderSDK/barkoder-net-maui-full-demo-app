@@ -1,4 +1,4 @@
-﻿namespace _TmpMaui;
+namespace BarkoderMaui;
 
 public partial class AppShell : Shell
 {
@@ -12,3 +12,4 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute(nameof(Views.AboutPage), typeof(Views.AboutPage));
 	}
 }
+

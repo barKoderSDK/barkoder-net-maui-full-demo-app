@@ -1,9 +1,9 @@
-_TmpMaui.MainActivity, _TmpMaui;crc64253ba83e7aab0781.MainActivity
-_TmpMaui.MainActivity;crc64253ba83e7aab0781.MainActivity
-_tmpmaui.MainActivity;crc64253ba83e7aab0781.MainActivity
-_TmpMaui.MainApplication, _TmpMaui;crc64253ba83e7aab0781.MainApplication
-_TmpMaui.MainApplication;crc64253ba83e7aab0781.MainApplication
-_tmpmaui.MainApplication;crc64253ba83e7aab0781.MainApplication
+BarkoderMaui.MainActivity, _TmpMaui;crc64ea2f620107e2dd44.MainActivity
+BarkoderMaui.MainActivity;crc64ea2f620107e2dd44.MainActivity
+barkodermaui.MainActivity;crc64ea2f620107e2dd44.MainActivity
+BarkoderMaui.MainApplication, _TmpMaui;crc64ea2f620107e2dd44.MainApplication
+BarkoderMaui.MainApplication;crc64ea2f620107e2dd44.MainApplication
+barkodermaui.MainApplication;crc64ea2f620107e2dd44.MainApplication
 GoogleGson.IExclusionStrategy, GoogleGson;com.google.gson.ExclusionStrategy
 GoogleGson.IExclusionStrategy;com.google.gson.ExclusionStrategy
 com.google.gson.ExclusionStrategy;com.google.gson.ExclusionStrategy

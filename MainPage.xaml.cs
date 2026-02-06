@@ -1,4 +1,4 @@
-namespace _TmpMaui;
+namespace BarkoderMaui;
 
 using Microsoft.Maui.ApplicationModel;
 using Plugin.Maui.Barkoder.Enums;
@@ -68,3 +68,4 @@ public partial class MainPage : ContentPage, IBarkoderDelegate
 		});
 	}
 }
+

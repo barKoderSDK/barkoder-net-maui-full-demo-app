@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Plugin.Maui.Barkoder.Controls;
 using Plugin.Maui.Barkoder.Handlers;
 
-namespace _TmpMaui;
+namespace BarkoderMaui;
 
 public static class MauiProgram
 {
@@ -28,3 +28,4 @@ public static class MauiProgram
 		return builder.Build();
 	}
 }
+

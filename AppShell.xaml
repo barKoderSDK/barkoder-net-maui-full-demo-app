@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="_TmpMaui.AppShell"
+    x:Class="BarkoderMaui.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:views="clr-namespace:_TmpMaui.Views"
+    xmlns:views="clr-namespace:BarkoderMaui.Views"
     Shell.NavBarIsVisible="False"
     FlyoutBehavior="Disabled"
-    Title="_TmpMaui">
+    Title="BarkoderMaui">
 
     <ShellContent
         Title="Home"
@@ -14,3 +14,4 @@
         Route="HomePage" />
 
 </Shell>
+

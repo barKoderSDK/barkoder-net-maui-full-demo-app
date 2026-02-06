@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
-    x:Class="_TmpMaui.Views.HomePage"
+    x:Class="BarkoderMaui.Views.HomePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:models="clr-namespace:_TmpMaui.Models"
-    xmlns:local="clr-namespace:_TmpMaui.Views"
+    xmlns:models="clr-namespace:BarkoderMaui.Models"
+    xmlns:local="clr-namespace:BarkoderMaui.Views"
+    xmlns:barkoder="clr-namespace:Plugin.Maui.Barkoder.Controls;assembly=Plugin.Maui.Barkoder"
+    xmlns:utils="clr-namespace:BarkoderMaui.Utils"
     NavigationPage.HasNavigationBar="False">
 
     <Grid>
+        <barkoder:BarkoderView
+            x:Name="GalleryBkdView"
+            barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
+            Opacity="0"
+            InputTransparent="True"
+            HeightRequest="1"
+            WidthRequest="1" />
         <Image Source="bg.svg" Aspect="AspectFill" />
 
         <Grid RowDefinitions="Auto,*,Auto" Padding="0,8,0,0">
@@ -91,3 +100,4 @@
         </Grid>
     </Grid>
 </ContentPage>
+

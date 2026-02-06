@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
-    x:Class="_TmpMaui.Views.ScannerPage"
+    x:Class="BarkoderMaui.Views.ScannerPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:barkoder="clr-namespace:Plugin.Maui.Barkoder.Controls;assembly=Plugin.Maui.Barkoder"
-    xmlns:utils="clr-namespace:_TmpMaui.Utils"
-    xmlns:local="clr-namespace:_TmpMaui.Views"
+    xmlns:utils="clr-namespace:BarkoderMaui.Utils"
+    xmlns:local="clr-namespace:BarkoderMaui.Views"
     NavigationPage.HasNavigationBar="False">
 
     <Grid>
         <barkoder:BarkoderView
             x:Name="BKDView"
-            barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}" />
+            barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}">
+            <barkoder:BarkoderView.Triggers>
+                <DataTrigger TargetType="barkoder:BarkoderView" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="Opacity" Value="0" />
+                    <Setter Property="InputTransparent" Value="True" />
+                </DataTrigger>
+            </barkoder:BarkoderView.Triggers>
+        </barkoder:BarkoderView>
 
         <Image
             x:Name="FrozenImage"
             Aspect="AspectFill"
-            IsVisible="{Binding IsScanningPaused}" />
+            IsVisible="{Binding IsScanningPaused}">
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ResumeScanningCommand}" />
+            </Image.GestureRecognizers>
+        </Image>
 
         <Grid IsVisible="{Binding IsScanningPaused}" BackgroundColor="Transparent">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding ResumeScanningCommand}" />
-            </Grid.GestureRecognizers>
-        </Grid>
-
-        <Grid IsVisible="{Binding IsScanningPaused}" Padding="20">
-            <Border BackgroundColor="#A9787878" StrokeThickness="0" StrokeShape="RoundRectangle 8" HorizontalOptions="Center">
-                <HorizontalStackLayout Padding="16,8" Spacing="8" VerticalOptions="Center">
-                    <Image Source="touch_icon.svg" HeightRequest="18" WidthRequest="18" />
-                    <Label Text="Tap anywhere to continue" TextColor="White" FontSize="13" FontAttributes="Bold" />
-                </HorizontalStackLayout>
-            </Border>
         </Grid>
 
         <!-- Top bar overlay -->
         <Grid RowDefinitions="Auto,*" IsVisible="{Binding ShowTopBar}">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
             <Grid Padding="16,20" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                 <ImageButton Source="close_white.svg" Clicked="OnCloseClicked" BackgroundColor="Transparent" HeightRequest="24" WidthRequest="24" Padding="0" VerticalOptions="Center" HorizontalOptions="Start" />
                 <Image Grid.Column="1" Source="logo_barkoder_white.svg" HeightRequest="18" HorizontalOptions="Center" />
@@ -44,6 +48,11 @@
 
         <!-- Settings overlay -->
         <Grid IsVisible="{Binding IsSettingsVisible}" BackgroundColor="#FFFFFF">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
             <Image Source="bg.svg" Aspect="Fill" />
             <Grid RowDefinitions="Auto,*" Padding="0,28,0,0">
                 <Grid Padding="16,16" ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -62,6 +71,11 @@
             IsVisible="{Binding ShowBottomControls}"
             VerticalOptions="End"
             Padding="0,0,0,40">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
             <VerticalStackLayout Spacing="18" HorizontalOptions="Center">
                 <Border
                     IsVisible="{Binding HasActiveBarcodeText}"
@@ -90,53 +104,65 @@
 
         <!-- Result sheet -->
         <Grid IsVisible="{Binding IsResultSheetOpen}" VerticalOptions="End">
-            <Border BackgroundColor="White" StrokeThickness="0" Padding="20,20,20,24">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer />
+            </Grid.GestureRecognizers>
+            <Border BackgroundColor="White" StrokeThickness="0" Padding="20,12,20,24">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="16,16,0,0" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="{Binding ResultHeaderText}" FontSize="12" TextColor="#00000088" />
-                        <ImageButton Source="close.svg" Clicked="OnResultSheetClose" BackgroundColor="Transparent" />
-                    </Grid>
+                    <Border HeightRequest="4" WidthRequest="44" BackgroundColor="#B48787" StrokeThickness="0" StrokeShape="RoundRectangle 2" HorizontalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="OnSheetHandlePanUpdated" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Label Text="{Binding ResultHeaderText}" FontSize="13" TextColor="#4A4A4A" Margin="0,2,0,0" />
 
                     <CollectionView
                         ItemsSource="{Binding UniqueScannedItems}"
                         MaximumHeightRequest="{Binding ResultListMaxHeight}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="10,6" BackgroundColor="{Binding CardBackground}" Margin="0,0,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <VerticalStackLayout>
-                                        <Label Text="{Binding Type}" FontSize="11" TextColor="#6C757D" />
-                                        <Label Text="{Binding DisplayText}" FontSize="14" FontAttributes="Bold" TextColor="#000000DE" LineBreakMode="TailTruncation" />
-                                    </VerticalStackLayout>
-                                    <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
-                                        <Label Text="{Binding CountText}" FontSize="12" TextColor="#6C757D" IsVisible="{Binding HasCount}" />
-                                        <Image Source="info.svg" HeightRequest="20" WidthRequest="20" />
-                                    </HorizontalStackLayout>
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:ScannerPage}}, Path=ItemDetailsCommand}" CommandParameter="{Binding .}" />
-                                    </Grid.GestureRecognizers>
-                                </Grid>
+                                <Border BackgroundColor="{Binding CardBackground}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding Type}" FontSize="14" FontAttributes="Bold" TextColor="#000" />
+                                            <Label Text="{Binding DisplayText}" FontSize="13" TextColor="#2E2E2E" LineBreakMode="TailTruncation" />
+                                        </VerticalStackLayout>
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                                            <Label Text="{Binding CountText}" FontSize="12" TextColor="#6C757D" IsVisible="{Binding HasCount}" />
+                                            <Image Source="info.svg" HeightRequest="16" WidthRequest="16" />
+                                        </HorizontalStackLayout>
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:ScannerPage}}, Path=ItemDetailsCommand}" CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
                     <Grid ColumnDefinitions="*,*,*">
                         <VerticalStackLayout Grid.Column="0" Spacing="8" HorizontalOptions="Center">
-                            <ImageButton Source="icon_copy.svg" Clicked="OnCopyClicked" BackgroundColor="Transparent" />
+                            <ImageButton Source="icon_copy.svg" Clicked="OnCopyClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                             <Label Text="Copy" FontSize="12" TextColor="#000" />
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="8" HorizontalOptions="Center">
-                            <ImageButton Source="icon_csv.svg" Clicked="OnCsvClicked" BackgroundColor="Transparent" />
+                            <ImageButton Source="icon_csv.svg" Clicked="OnCsvClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                             <Label Text="CSV" FontSize="12" TextColor="#000" />
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="2" Spacing="8" HorizontalOptions="Center">
-                            <ImageButton Source="expand_all.svg" Clicked="OnExpandClicked" BackgroundColor="Transparent" />
+                            <ImageButton Source="expand_all.svg" Clicked="OnExpandClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                             <Label Text="{Binding ExpandLabel}" FontSize="12" TextColor="#000" />
                         </VerticalStackLayout>
                     </Grid>
@@ -146,57 +172,109 @@
 
         <!-- Expanded sheet overlay -->
         <Grid IsVisible="{Binding IsResultSheetExpanded}" BackgroundColor="#66000000">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnExpandedBackgroundTapped" />
+            </Grid.GestureRecognizers>
             <Grid VerticalOptions="End" HeightRequest="{Binding ExpandedSheetHeight}">
-                <Border BackgroundColor="White" StrokeThickness="0" Padding="20,14,20,24">
+                <Border BackgroundColor="White" StrokeThickness="0" Padding="20,12,20,24">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="20,20,0,0" />
                     </Border.StrokeShape>
-                    <VerticalStackLayout Spacing="12">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="{Binding ResultHeaderText}" FontSize="12" TextColor="#00000088" />
-                            <ImageButton Source="close.svg" Clicked="OnExpandClose" BackgroundColor="Transparent" />
-                        </Grid>
-                        <CollectionView ItemsSource="{Binding UniqueScannedItems}" VerticalOptions="FillAndExpand">
+                    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+                        <VerticalStackLayout Grid.Row="0" Spacing="6">
+                            <Border HeightRequest="4" WidthRequest="44" BackgroundColor="#B48787" StrokeThickness="0" StrokeShape="RoundRectangle 2" HorizontalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <PanGestureRecognizer PanUpdated="OnSheetHandlePanUpdated" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Label Text="{Binding ResultHeaderText}" FontSize="13" TextColor="#4A4A4A" Margin="0,2,0,0" />
+                        </VerticalStackLayout>
+
+                        <CollectionView Grid.Row="1" ItemsSource="{Binding UniqueScannedItems}" VerticalOptions="FillAndExpand">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="10,6" BackgroundColor="{Binding CardBackground}" Margin="0,0,0,8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <VerticalStackLayout>
-                                            <Label Text="{Binding Type}" FontSize="11" TextColor="#6C757D" />
-                                            <Label Text="{Binding DisplayText}" FontSize="14" FontAttributes="Bold" TextColor="#000000DE" LineBreakMode="TailTruncation" />
-                                        </VerticalStackLayout>
-                                        <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
-                                            <Label Text="{Binding CountText}" FontSize="12" TextColor="#6C757D" IsVisible="{Binding HasCount}" />
-                                            <Image Source="info.svg" HeightRequest="20" WidthRequest="20" />
-                                        </HorizontalStackLayout>
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:ScannerPage}}, Path=ItemDetailsCommand}" CommandParameter="{Binding .}" />
-                                        </Grid.GestureRecognizers>
-                                    </Grid>
+                                    <Border BackgroundColor="{Binding CardBackground}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,8" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <VerticalStackLayout Spacing="4">
+                                                <Label Text="{Binding Type}" FontSize="14" FontAttributes="Bold" TextColor="#000" />
+                                                <Label Text="{Binding DisplayText}" FontSize="13" TextColor="#2E2E2E" LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                                                <Label Text="{Binding CountText}" FontSize="12" TextColor="#6C757D" IsVisible="{Binding HasCount}" />
+                                                <Image Source="info.svg" HeightRequest="16" WidthRequest="16" />
+                                            </HorizontalStackLayout>
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type local:ScannerPage}}, Path=ItemDetailsCommand}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
-                        <Grid ColumnDefinitions="*,*,*">
+                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*">
                             <VerticalStackLayout Grid.Column="0" Spacing="8" HorizontalOptions="Center">
-                                <ImageButton Source="icon_copy.svg" Clicked="OnCopyClicked" BackgroundColor="Transparent" />
+                                <ImageButton Source="icon_copy.svg" Clicked="OnCopyClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                                 <Label Text="Copy" FontSize="12" TextColor="#000" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="1" Spacing="8" HorizontalOptions="Center">
-                                <ImageButton Source="icon_csv.svg" Clicked="OnCsvClicked" BackgroundColor="Transparent" />
+                                <ImageButton Source="icon_csv.svg" Clicked="OnCsvClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                                 <Label Text="CSV" FontSize="12" TextColor="#000" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="2" Spacing="8" HorizontalOptions="Center">
-                                <ImageButton Source="expand_all.svg" Clicked="OnExpandClicked" BackgroundColor="Transparent" />
+                                <ImageButton Source="expand_all.svg" Clicked="OnExpandClicked" BackgroundColor="Transparent" HeightRequest="20" WidthRequest="20" Padding="0" />
                                 <Label Text="{Binding ExpandLabel}" FontSize="12" TextColor="#000" />
                             </VerticalStackLayout>
                         </Grid>
-                    </VerticalStackLayout>
+                    </Grid>
                 </Border>
             </Grid>
         </Grid>
+
+        <!-- Tap to continue (collapsed) -->
+        <Grid IsVisible="{Binding ShowTapOverlayCenter}" Padding="20" ZIndex="5">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <Border BackgroundColor="#A9787878" StrokeThickness="0" StrokeShape="RoundRectangle 8" HorizontalOptions="Center" VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ResumeScanningCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Padding="16,8" Spacing="8" VerticalOptions="Center">
+                    <Image Source="touch_icon.svg" HeightRequest="18" WidthRequest="18" />
+                    <Label Text="Tap anywhere to continue" TextColor="White" FontSize="13" FontAttributes="Bold" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- Tap to continue (expanded) -->
+        <Grid IsVisible="{Binding ShowTapOverlayAboveExpanded}" Padding="20" ZIndex="5" VerticalOptions="End" Margin="{Binding TapOverlayExpandedMargin}">
+            <Grid.Triggers>
+                <DataTrigger TargetType="Grid" Binding="{Binding IsGalleryMode}" Value="True">
+                    <Setter Property="IsVisible" Value="False" />
+                </DataTrigger>
+            </Grid.Triggers>
+            <Border BackgroundColor="#A9787878" StrokeThickness="0" StrokeShape="RoundRectangle 8" HorizontalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ResumeScanningCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Padding="16,8" Spacing="8" VerticalOptions="Center">
+                    <Image Source="touch_icon.svg" HeightRequest="18" WidthRequest="18" />
+                    <Label Text="Tap anywhere to continue" TextColor="White" FontSize="13" FontAttributes="Bold" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>
+

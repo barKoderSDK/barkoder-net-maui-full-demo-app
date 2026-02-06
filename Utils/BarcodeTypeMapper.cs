@@ -1,6 +1,6 @@
 using Plugin.Maui.Barkoder.Enums;
 
-namespace _TmpMaui.Utils;
+namespace BarkoderMaui.Utils;
 
 public static class BarcodeTypeMapper
 {
@@ -53,3 +53,4 @@ public static class BarcodeTypeMapper
     public static bool TryGet(string id, out BarcodeType type)
         => Map.TryGetValue(id, out type);
 }
+

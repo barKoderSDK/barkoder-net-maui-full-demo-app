@@ -1,4 +1,4 @@
-namespace _TmpMaui.Models;
+namespace BarkoderMaui.Models;
 
 public class ScannedItemView
 {
@@ -11,3 +11,4 @@ public class ScannedItemView
     public Color CardBackground { get; set; } = Colors.Transparent;
     public ScannedItem SourceItem { get; set; } = new ScannedItem();
 }
+

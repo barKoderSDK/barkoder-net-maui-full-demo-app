@@ -1054,11 +1054,6 @@ C:\dev\_maui_tmp\obj\Debug\net8.0-android34.0\stamp\_ResolveLibraryProjectImport
 C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\_TmpMaui.runtimeconfig.json
 C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\_TmpMaui.dll
 C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\_TmpMaui.pdb
-C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.x_tmpmaui.apk
-C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.x_tmpmaui.aab
-C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.x_tmpmaui-Signed.aab
-C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.x_tmpmaui-Signed.apk
-C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.x_tmpmaui-Signed.apk.idsig
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\build.props
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\adb.props
@@ -1175,10 +1170,7 @@ C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\_TmpMaui.dll
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\_TmpMaui.pdb
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\_TmpMaui.genruntimeconfig.cache
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\_TmpMaui.runtimeconfig.json.bin
-C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.x_tmpmaui.apk
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\base.zip
-C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.x_tmpmaui.aab
-C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.x_tmpmaui.apks
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\res\values\colors.xml
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\uploadflags.txt
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\resolvedassemblies.hash
@@ -2280,3 +2272,14 @@ C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\resizetizer\r\drawable-xxh
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\resizetizer\r\drawable-xhdpi\close_white.png
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\resizetizer\r\drawable-hdpi\close_white.png
 C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\resizetizer\r\drawable-mdpi\close_white.png
+C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.BarkoderMaui.apk
+C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.BarkoderMaui.aab
+C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.BarkoderMaui-Signed.aab
+C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.BarkoderMaui-Signed.apk
+C:\dev\barkoder_app_maui\bin\Debug\net8.0-android34.0\com.companyname.BarkoderMaui-Signed.apk.idsig
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.BarkoderMaui.apk
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.BarkoderMaui.aab
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\bin\com.companyname.BarkoderMaui.apks
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\src\crc64ea2f620107e2dd44\MainActivity.java
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\src\crc64ea2f620107e2dd44\MainApplication.java
+C:\dev\barkoder_app_maui\obj\Debug\net8.0-android34.0\android\src\com\companyname\barkodermaui\R.java
