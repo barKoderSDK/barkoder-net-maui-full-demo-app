@@ -10,13 +10,6 @@
     NavigationPage.HasNavigationBar="False">
 
     <Grid>
-        <barkoder:BarkoderView
-            x:Name="GalleryBkdView"
-            barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
-            Opacity="0"
-            InputTransparent="True"
-            HeightRequest="1"
-            WidthRequest="1" />
         <Image Source="bg.svg" Aspect="AspectFill" />
 
         <Grid RowDefinitions="Auto,*,Auto" Padding="0,8,0,0">
@@ -79,15 +72,17 @@
                     <Label Text="Recent" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
                 </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Column="1" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
-                    <VerticalStackLayout.GestureRecognizers>
+                <Grid Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnAnyScanClicked" />
-                    </VerticalStackLayout.GestureRecognizers>
-                    <Frame BackgroundColor="#E52E4C" CornerRadius="18" WidthRequest="54" HeightRequest="54" Padding="0" HasShadow="False">
-                        <Image Source="start.svg" HeightRequest="26" WidthRequest="26" HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Frame>
-                    <Label Text="Anyscan" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
-                </VerticalStackLayout>
+                    </Grid.GestureRecognizers>
+                    <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True">
+                        <Frame BackgroundColor="#E52E4C" CornerRadius="18" WidthRequest="54" HeightRequest="54" Padding="0" HasShadow="False" InputTransparent="True">
+                            <Image Source="start.svg" HeightRequest="26" WidthRequest="26" HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True" />
+                        </Frame>
+                        <Label Text="Anyscan" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" InputTransparent="True" />
+                    </VerticalStackLayout>
+                </Grid>
 
                 <VerticalStackLayout Grid.Column="2" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
                     <VerticalStackLayout.GestureRecognizers>
@@ -97,6 +92,23 @@
                     <Label Text="About" FontSize="13" FontAttributes="Bold" TextColor="#444" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
                 </VerticalStackLayout>
             </Grid>
+        </Grid>
+
+        <!-- Gallery scan overlay -->
+        <Grid x:Name="GalleryScanOverlay" IsVisible="False" BackgroundColor="#66000000">
+            <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                <VerticalStackLayout Spacing="12" Padding="20" BackgroundColor="White" WidthRequest="220" HorizontalOptions="Center">
+                    <ActivityIndicator IsRunning="True" Color="#E52E4C" />
+                    <Label Text="Processing image..." TextColor="#333" FontSize="14" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+            <barkoder:BarkoderView
+                x:Name="GalleryScanBkdView"
+                barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
+                Opacity="0.01"
+                InputTransparent="True"
+                HeightRequest="10"
+                WidthRequest="10" />
         </Grid>
     </Grid>
 </ContentPage>

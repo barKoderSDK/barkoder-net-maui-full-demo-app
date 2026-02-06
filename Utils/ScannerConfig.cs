@@ -28,7 +28,11 @@ public static class ScannerConfig
             {
                 types[id] = BarcodeConstants.BarcodeTypes2D.Any(b => b.Id == id) && id != "ocrText";
             }
-            else if (mode == ScannerModes.Continuous || mode == ScannerModes.AnyScan)
+            else if (mode == ScannerModes.Continuous)
+            {
+                types[id] = id != "ocrText";
+            }
+            else if (mode == ScannerModes.AnyScan)
             {
                 types[id] = id != "ocrText";
             }

@@ -170,6 +170,16 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        if (_initialized)
+        {
+            if (!IsGalleryMode)
+            {
+                ApplySettings();
+                ApplyBarcodeTypes();
+                StartScanning();
+            }
+            return;
+        }
         await InitializeAsync();
     }
 
@@ -249,6 +259,10 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _enabledTypes["idDocument"]  = false;
         }
+        if (Mode == ScannerModes.AnyScan)
+        {
+            _enabledTypes["ocrText"] = false;
+        }
 
         RenderSettings();
     }
@@ -280,9 +294,20 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             BKDView.SetEnableComposite(_settings.CompositeMode ? 1 : 0);
         }
 
-        if (Mode != ScannerModes.Vin)
+        if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
         {
             BKDView.SetCustomOption("enable_ocr_functionality", 0);
+        }
+        else if (Mode != ScannerModes.Vin)
+        {
+            if (_enabledTypes.TryGetValue("ocrText", out var ocrEnabled) && ocrEnabled)
+            {
+                BKDView.SetCustomOption("enable_ocr_functionality", 1);
+            }
+            else
+            {
+                BKDView.SetCustomOption("enable_ocr_functionality", 0);
+            }
         }
 
         if (Mode == ScannerModes.Vin)
@@ -825,7 +850,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
                 }
             }
 
-            if (Mode != ScannerModes.Vin)
+            if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
             {
                 _enabledTypes["ocrText"] = false;
             }
@@ -843,7 +868,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             stack.Children.Add(CreateSwitchRow(item.Label, enabled, value =>
             {
                 _enabledTypes[item.Id] = value;
-                if (item.Id == "ocrText" && Mode != ScannerModes.Vin)
+                if (item.Id == "ocrText" && Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
                 {
                     return;
                 }
@@ -1141,7 +1166,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             return Enumerable.Empty<(string Id, string Label)>();
         }
 
-        if (Mode != ScannerModes.Vin)
+        if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
         {
             list = list.Where(t => t.Id != "ocrText").ToList();
         }

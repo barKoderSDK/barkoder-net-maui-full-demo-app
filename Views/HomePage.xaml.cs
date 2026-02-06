@@ -22,6 +22,7 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
     private ScannerSettings _gallerySettings = new();
     private string? _pendingGalleryBase64;
     private bool _isGalleryScanInProgress;
+    private CancellationTokenSource? _galleryScanCts;
 
     public HomePage()
     {
@@ -81,7 +82,7 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
         }
 
         _galleryInitialized = true;
-        await GalleryBkdView.whenScannerReady();
+        await GalleryScanBkdView.whenScannerReady();
 
         _gallerySettings = ScannerConfig.GetInitialSettings(ScannerModes.Gallery);
         _galleryEnabledTypes = ScannerConfig.GetInitialEnabledTypes(ScannerModes.Gallery);
@@ -89,31 +90,31 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
 
     private void ApplyGallerySettings()
     {
-        GalleryBkdView.SetImageResultEnabled(true);
-        GalleryBkdView.SetLocationInImageResultEnabled(true);
-        GalleryBkdView.SetLocationInPreviewEnabled(_gallerySettings.LocationInPreview);
-        GalleryBkdView.SetRegionOfInterestVisible(_gallerySettings.RegionOfInterest);
+        GalleryScanBkdView.SetImageResultEnabled(true);
+        GalleryScanBkdView.SetLocationInImageResultEnabled(true);
+        GalleryScanBkdView.SetLocationInPreviewEnabled(_gallerySettings.LocationInPreview);
+        GalleryScanBkdView.SetRegionOfInterestVisible(_gallerySettings.RegionOfInterest);
         if (_gallerySettings.RegionOfInterest)
         {
-            GalleryBkdView.SetRegionOfInterest(5, 5, 90, 90);
+            GalleryScanBkdView.SetRegionOfInterest(5, 5, 90, 90);
         }
-        GalleryBkdView.SetPinchToZoomEnabled(_gallerySettings.PinchToZoom);
-        GalleryBkdView.SetBeepOnSuccessEnabled(_gallerySettings.BeepOnSuccess);
-        GalleryBkdView.SetVibrateOnSuccessEnabled(_gallerySettings.VibrateOnSuccess);
-        GalleryBkdView.SetCloseSessionOnResultEnabled(!_gallerySettings.ContinuousScanning);
-        GalleryBkdView.SetUpcEanDeblurEnabled(_gallerySettings.ScanBlurred);
-        GalleryBkdView.SetEnableMisshaped1DEnabled(_gallerySettings.ScanDeformed);
-        GalleryBkdView.SetDecodingSpeed(_gallerySettings.DecodingSpeed);
-        GalleryBkdView.SetBarkoderResolution(_gallerySettings.Resolution);
-        GalleryBkdView.SetBarcodeThumbnailOnResultEnabled(true);
-        GalleryBkdView.SetMaximumResultsCount(200);
-        GalleryBkdView.SetThresholdBetweenDuplicatesScans(_gallerySettings.ContinuousScanning ? _gallerySettings.ContinuousThreshold : 0);
+        GalleryScanBkdView.SetPinchToZoomEnabled(_gallerySettings.PinchToZoom);
+        GalleryScanBkdView.SetBeepOnSuccessEnabled(_gallerySettings.BeepOnSuccess);
+        GalleryScanBkdView.SetVibrateOnSuccessEnabled(_gallerySettings.VibrateOnSuccess);
+        GalleryScanBkdView.SetCloseSessionOnResultEnabled(!_gallerySettings.ContinuousScanning);
+        GalleryScanBkdView.SetUpcEanDeblurEnabled(_gallerySettings.ScanBlurred);
+        GalleryScanBkdView.SetEnableMisshaped1DEnabled(_gallerySettings.ScanDeformed);
+        GalleryScanBkdView.SetDecodingSpeed(DecodingSpeed.Rigorous);
+        GalleryScanBkdView.SetBarkoderResolution(_gallerySettings.Resolution);
+        GalleryScanBkdView.SetBarcodeThumbnailOnResultEnabled(true);
+        GalleryScanBkdView.SetMaximumResultsCount(200);
+        GalleryScanBkdView.SetThresholdBetweenDuplicatesScans(_gallerySettings.ContinuousScanning ? _gallerySettings.ContinuousThreshold : 0);
 
         foreach (var type in _galleryEnabledTypes)
         {
             if (BarcodeTypeMapper.TryGet(type.Key, out var barkoderType))
             {
-                GalleryBkdView.SetBarcodeTypeEnabled(barkoderType, type.Value);
+                GalleryScanBkdView.SetBarcodeTypeEnabled(barkoderType, type.Value);
             }
         }
     }
@@ -158,10 +159,15 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
 
         try
         {
-            await Task.Delay(60);
-            await GalleryBkdView.whenScannerReady();
+            GalleryScanOverlay.IsVisible = true;
+            _galleryScanCts?.Cancel();
+            _galleryScanCts = new CancellationTokenSource();
+            _ = HandleGalleryScanTimeoutAsync(_galleryScanCts.Token);
+
+            await Task.Delay(100);
+            await GalleryScanBkdView.whenScannerReady();
             ApplyGallerySettings();
-            GalleryBkdView.ScanImage(base64, this);
+            GalleryScanBkdView.ScanImage(base64, this);
         }
         finally
         {
@@ -169,8 +175,32 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
         }
     }
 
+    private async Task HandleGalleryScanTimeoutAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(8), token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                GalleryScanOverlay.IsVisible = false;
+                await DisplayAlert("No barcode found", "Scanning timed out. Please try another image.", "OK");
+            });
+        }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+
     public void DidFinishScanning(BarcodeResult[] result, ImageSource[] thumbnails, ImageSource originalImageSource)
     {
+        _galleryScanCts?.Cancel();
+        MainThread.BeginInvokeOnMainThread(() => { GalleryScanOverlay.IsVisible = false; });
+
         if (result == null || result.Length == 0)
         {
             MainThread.BeginInvokeOnMainThread(async () =>
