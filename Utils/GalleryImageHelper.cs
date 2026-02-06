@@ -26,6 +26,7 @@ public static class GalleryImageHelper
             using var bitmap = Android.Graphics.BitmapFactory.DecodeFile(file.FullPath, decodeOptions);
             if (bitmap == null)
             {
+                AppLogger.Warn("GalleryImageHelper: DecodeFile returned null bitmap, falling back to stream");
                 return await ReadStreamBase64Async(file);
             }
 
@@ -34,6 +35,7 @@ public static class GalleryImageHelper
             bitmap.Compress(format!, 85, ms);
             return Convert.ToBase64String(ms.ToArray());
         }
+        AppLogger.Warn("GalleryImageHelper: file.FullPath empty, using stream read");
 #elif IOS
         if (!string.IsNullOrWhiteSpace(file.FullPath))
         {

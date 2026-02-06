@@ -11,7 +11,7 @@
     <Grid>
         <barkoder:BarkoderView
             x:Name="BKDView"
-            barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}">
+            LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}">
             <barkoder:BarkoderView.Triggers>
                 <DataTrigger TargetType="barkoder:BarkoderView" Binding="{Binding IsGalleryMode}" Value="True">
                     <Setter Property="Opacity" Value="0" />
@@ -19,6 +19,13 @@
                 </DataTrigger>
             </barkoder:BarkoderView.Triggers>
         </barkoder:BarkoderView>
+
+        <Grid IsVisible="{Binding ShowGalleryLoader}" BackgroundColor="#66000000">
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
+                <ActivityIndicator IsRunning="True" Color="White" WidthRequest="36" HeightRequest="36" />
+                <Label Text="Scanning image..." TextColor="White" FontSize="14" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
 
         <Image
             x:Name="FrozenImage"

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:barkoder="clr-namespace:Plugin.Maui.Barkoder.Controls;assembly=Plugin.Maui.Barkoder"
+             xmlns:utils="clr-namespace:BarkoderMaui.Utils"
              x:Class="BarkoderMaui.MainPage">
 
     <ScrollView>
@@ -16,7 +17,7 @@
 
             <barkoder:BarkoderView
                 x:Name="BKDView"
-                barkoder:LicenseKey="YOUR_LICENSE_KEY"
+                LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
                 HeightRequest="300" />
 
             <Button
@@ -37,4 +38,3 @@
     </ScrollView>
 
 </ContentPage>
-

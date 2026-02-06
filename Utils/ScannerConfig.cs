@@ -46,7 +46,8 @@ public static class ScannerConfig
             }
             else if (mode == ScannerModes.Gallery)
             {
-                types[id] = true;
+                // OCR requires MLKit on Android; disable by default for gallery scans.
+                types[id] = id != "ocrText";
             }
             else if (mode == ScannerModes.Vin)
             {

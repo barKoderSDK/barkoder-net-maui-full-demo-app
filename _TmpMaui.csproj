@@ -23,7 +23,7 @@
 		<ApplicationTitle>BarkoderMaui</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.BarkoderMaui</ApplicationId>
+		<ApplicationId>com.barkoder.BarkoderMaui</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -53,6 +53,8 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<!-- Environment config (dotfiles can be skipped by Android asset packaging) -->
+		<MauiAsset Include=".env" LogicalName="app.env" />
 
 		<!-- Exclude local inspection artifacts -->
 		<Compile Remove="_il\**\*.cs" />

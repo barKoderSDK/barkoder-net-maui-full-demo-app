@@ -104,7 +104,7 @@
             </Grid>
             <barkoder:BarkoderView
                 x:Name="GalleryScanBkdView"
-                barkoder:LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
+                LicenseKey="{x:Static utils:AppConfig.BarkoderLicenseKey}"
                 Opacity="0.01"
                 InputTransparent="True"
                 HeightRequest="10"

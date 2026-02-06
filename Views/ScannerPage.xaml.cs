@@ -37,6 +37,9 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     private long _lastSessionId = -1;
     private double _expandedSheetHeight;
     private double _resultListMaxHeight = 180;
+    private bool _isGalleryScanning;
+    private ImageSource? _galleryPreviewSource;
+    private string? _galleryPreviewPath;
 
     public ObservableCollection<ScannedItem> ScannedItems { get; } = new();
     public ObservableCollection<ScannedItemView> UniqueScannedItems { get; } = new();
@@ -52,6 +55,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             _mode = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsGalleryMode));
+            OnPropertyChanged(nameof(ShowGalleryLoader));
         }
     }
 
@@ -157,6 +161,18 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     public bool ShowTapOverlayAboveExpanded => IsScanningPaused && !IsSettingsVisible && IsResultSheetExpanded;
     public Thickness TapOverlayExpandedMargin => new Thickness(20, 0, 20, ExpandedSheetHeight + 12);
     public bool IsGalleryMode => string.Equals(Mode, ScannerModes.Gallery, StringComparison.OrdinalIgnoreCase);
+    public bool ShowGalleryLoader => IsGalleryMode && IsGalleryScanning;
+
+    public bool IsGalleryScanning
+    {
+        get => _isGalleryScanning;
+        set
+        {
+            _isGalleryScanning = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ShowGalleryLoader));
+        }
+    }
 
     public ScannerPage()
     {
@@ -233,6 +249,8 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         _isResultSheetHidden = false;
         IsScanningPaused = false;
         FrozenImage.Source = null;
+        _galleryPreviewSource = null;
+        _galleryPreviewPath = null;
         UpdateResultSheetBindings();
     }
 
@@ -260,6 +278,10 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             _enabledTypes["idDocument"]  = false;
         }
         if (Mode == ScannerModes.AnyScan)
+        {
+            _enabledTypes["ocrText"] = false;
+        }
+        if (Mode == ScannerModes.Gallery)
         {
             _enabledTypes["ocrText"] = false;
         }
@@ -294,20 +316,14 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             BKDView.SetEnableComposite(_settings.CompositeMode ? 1 : 0);
         }
 
-        if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
+        if (Mode == ScannerModes.Gallery)
         {
+            _enabledTypes["ocrText"] = false;
             BKDView.SetCustomOption("enable_ocr_functionality", 0);
         }
         else if (Mode != ScannerModes.Vin)
         {
-            if (_enabledTypes.TryGetValue("ocrText", out var ocrEnabled) && ocrEnabled)
-            {
-                BKDView.SetCustomOption("enable_ocr_functionality", 1);
-            }
-            else
-            {
-                BKDView.SetCustomOption("enable_ocr_functionality", 0);
-            }
+            BKDView.SetCustomOption("enable_ocr_functionality", 0);
         }
 
         if (Mode == ScannerModes.Vin)
@@ -399,6 +415,11 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
     public void DidFinishScanning(BarcodeResult[] result, ImageSource[] thumbnails, ImageSource originalImageSource)
     {
+        AppLogger.Info($"DidFinishScanning: results={(result == null ? "null" : result.Length.ToString())}, gallery={IsGalleryMode}");
+        if (IsGalleryMode)
+        {
+            MainThread.BeginInvokeOnMainThread(() => IsGalleryScanning = false);
+        }
         if (result == null || result.Length == 0)
         {
             if (IsGalleryMode)
@@ -414,13 +435,14 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
         if (IsGalleryMode)
         {
-            var display = thumbnails?.FirstOrDefault() ?? originalImageSource;
+            var display = thumbnails?.FirstOrDefault() ?? originalImageSource ?? _galleryPreviewSource;
             var first = result[0];
             var item = new ScannedItem
             {
                 Text = first.TextualData,
                 Type = first.BarcodeTypeName,
-                Image = display
+                Image = display,
+                ImagePath = _galleryPreviewPath
             };
             _ = HistoryService.AddScanAsync(item);
             var currentPage = this;
@@ -579,28 +601,76 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
     {
         try
         {
+            AppLogger.Info("Gallery scan: opening picker");
             var file = await MediaPicker.PickPhotoAsync();
             if (file == null)
             {
+                AppLogger.Info("Gallery scan: user canceled picker");
+                IsGalleryScanning = false;
                 await Shell.Current.GoToAsync("..");
                 return;
             }
 
-            await using var stream = await file.OpenReadAsync();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var base64 = Convert.ToBase64String(ms.ToArray());
+            AppLogger.Info($"Gallery scan: picked file name={file.FileName}, contentType={file.ContentType}");
+            var base64 = await GalleryImageHelper.GetBase64Async(file, 1024);
+            if (string.IsNullOrWhiteSpace(base64))
+            {
+                AppLogger.Warn("Gallery scan: base64 conversion returned empty");
+                IsGalleryScanning = false;
+                await DisplayAlert("Error", "Could not read the selected image.", "OK");
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
+            AppLogger.Info($"Gallery scan: base64 length={base64.Length}");
+            await PrepareGalleryPreviewAsync(base64);
             await BKDView.whenScannerReady();
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 ApplySettings();
                 ApplyBarcodeTypes();
                 UpdateActiveBarcodeText();
+                AppLogger.Info("Gallery scan: calling BKDView.ScanImage");
+                IsGalleryScanning = true;
                 BKDView.ScanImage(base64, this);
             });
         }
-        catch
+        catch (Exception ex)
         {
+            AppLogger.Error("Gallery scan: failed", ex);
+            MainThread.BeginInvokeOnMainThread(() => IsGalleryScanning = false);
+            try
+            {
+                await DisplayAlert("Error", "Gallery scan failed. Check logs for details.", "OK");
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private async Task PrepareGalleryPreviewAsync(string base64)
+    {
+        try
+        {
+            var bytes = Convert.FromBase64String(base64);
+            var fileName = $"gallery_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.jpg";
+            var filePath = System.IO.Path.Combine(FileSystem.AppDataDirectory, fileName);
+            await File.WriteAllBytesAsync(filePath, bytes);
+            _galleryPreviewPath = filePath;
+            _galleryPreviewSource = ImageSource.FromFile(filePath);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Warn($"Gallery preview: failed to persist image ({ex.Message})");
+            try
+            {
+                var bytes = Convert.FromBase64String(base64);
+                _galleryPreviewSource = ImageSource.FromStream(() => new MemoryStream(bytes));
+            }
+            catch
+            {
+            }
         }
     }
 
