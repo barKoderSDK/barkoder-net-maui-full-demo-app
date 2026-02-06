@@ -1,1 +1,38 @@
 .env
+
+# Build outputs
+bin/
+obj/
+
+# .NET/Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userprefs
+*.pidb
+*.userosscache
+*.sln.docstates
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+*.swp
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+nuget.config
+
+# Secrets and local settings
+*.keystore
+*.jks
+*.pfx
+*.p12
+appsettings*.json
+
+# OS files
+.DS_Store
+Thumbs.db
