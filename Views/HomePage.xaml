@@ -30,24 +30,24 @@
                             <CollectionView
                                 ItemsSource="{Binding Items}"
                                 ItemsLayout="VerticalGrid, 3"
-                                Margin="0,0,0,6">
+                                Margin="0,0,0,6"
+                                SelectionMode="Single"
+                                SelectionChanged="OnHomeItemSelected">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="models:HomeItem">
-                                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,6,0,6">
-                                            <Image Source="{Binding Icon}" HeightRequest="50" WidthRequest="50" HorizontalOptions="Center" VerticalOptions="Center" />
-                                            <Label
-                                                Text="{Binding Label}"
-                                                FontSize="11"
-                                                FontAttributes="Bold"
-                                                TextColor="#333"
-                                                HorizontalTextAlignment="Center"
-                                                LineBreakMode="NoWrap" />
-                                            <VerticalStackLayout.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type local:HomePage}}, Path=ItemTappedCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                            </VerticalStackLayout.GestureRecognizers>
-                                        </VerticalStackLayout>
+                                        <Grid>
+                                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" Margin="0,6,0,6" InputTransparent="True">
+                                                <Image Source="{Binding Icon}" HeightRequest="50" WidthRequest="50" HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True" />
+                                                <Label
+                                                    Text="{Binding Label}"
+                                                    FontSize="11"
+                                                    FontAttributes="Bold"
+                                                    TextColor="#333"
+                                                    HorizontalTextAlignment="Center"
+                                                    LineBreakMode="NoWrap"
+                                                    InputTransparent="True" />
+                                            </VerticalStackLayout>
+                                        </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>

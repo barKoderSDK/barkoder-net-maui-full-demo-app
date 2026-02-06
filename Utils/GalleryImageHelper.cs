@@ -21,8 +21,7 @@ public static class GalleryImageHelper
             var decodeOptions = new Android.Graphics.BitmapFactory.Options
             {
                 InSampleSize = inSampleSize,
-                InPreferredConfig = Android.Graphics.Bitmap.Config.Rgb565,
-                InDither = true
+                InPreferredConfig = Android.Graphics.Bitmap.Config.Rgb565
             };
             using var bitmap = Android.Graphics.BitmapFactory.DecodeFile(file.FullPath, decodeOptions);
             if (bitmap == null)

@@ -23,6 +23,8 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
     private string? _pendingGalleryBase64;
     private bool _isGalleryScanInProgress;
     private CancellationTokenSource? _galleryScanCts;
+    private bool _isPickingGallery;
+    private DateTime _lastGalleryTap = DateTime.MinValue;
 
     public HomePage()
     {
@@ -34,7 +36,7 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (!string.IsNullOrWhiteSpace(_pendingGalleryBase64) && !_isGalleryScanInProgress)
+        if (!string.IsNullOrWhiteSpace(_pendingGalleryBase64) && !_isGalleryScanInProgress && !_isPickingGallery)
         {
             await StartPendingGalleryScanAsync();
         }
@@ -47,16 +49,33 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
             return;
         }
 
-        if (item.Id == "gallery")
-        {
-            await ScanImageFromGalleryAsync();
-            return;
-        }
+        // if (item.Id == "gallery")
+        // {
+        //     await ScanImageFromGalleryAsync();
+        //     return;
+        // }
 
         if (!string.IsNullOrWhiteSpace(item.Mode))
         {
             await Shell.Current.GoToAsync($"{nameof(ScannerPage)}?mode={item.Mode}&sessionId={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}");
         }
+    }
+
+    private async void OnHomeItemSelected(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is CollectionView collectionView)
+        {
+            collectionView.SelectedItem = null;
+        }
+
+        var item = e.CurrentSelection.FirstOrDefault() as HomeItem;
+        if (item == null)
+        {
+            return;
+        }
+
+        await Task.Delay(50);
+        OnItemTapped(item);
     }
 
     private async void OnRecentClicked(object sender, EventArgs e)
@@ -121,11 +140,25 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
 
     private async Task ScanImageFromGalleryAsync()
     {
-        await EnsureGalleryReadyAsync();
+        if (_isPickingGallery || _isGalleryScanInProgress)
+        {
+            return;
+        }
+
+        _isPickingGallery = true;
 
         try
         {
-            var file = await MediaPicker.PickPhotoAsync();
+            await EnsureGalleryReadyAsync();
+
+            var permissionGranted = await RequestGalleryPermissionAsync();
+            if (!permissionGranted)
+            {
+                await DisplayAlert("Permission required", "Please allow photo access to pick an image.", "OK");
+                return;
+            }
+
+            var file = await MainThread.InvokeOnMainThreadAsync(() => MediaPicker.PickPhotoAsync());
             if (file == null)
             {
                 return;
@@ -141,9 +174,25 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
             _pendingGalleryBase64 = base64;
             await StartPendingGalleryScanAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            await DisplayAlert("Error", $"Failed to open gallery: {ex.Message}", "OK");
         }
+        finally
+        {
+            _isPickingGallery = false;
+        }
+    }
+
+    private static async Task<bool> RequestGalleryPermissionAsync()
+    {
+#if ANDROID
+        var status = await Permissions.RequestAsync<Permissions.StorageRead>();
+        return status == PermissionStatus.Granted || status == PermissionStatus.Limited;
+#else
+        var status = await Permissions.RequestAsync<Permissions.Photos>();
+        return status == PermissionStatus.Granted || status == PermissionStatus.Limited;
+#endif
     }
 
     private async Task StartPendingGalleryScanAsync()
@@ -159,15 +208,18 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
 
         try
         {
-            GalleryScanOverlay.IsVisible = true;
+            await MainThread.InvokeOnMainThreadAsync(() => { GalleryScanOverlay.IsVisible = true; });
             _galleryScanCts?.Cancel();
             _galleryScanCts = new CancellationTokenSource();
             _ = HandleGalleryScanTimeoutAsync(_galleryScanCts.Token);
 
-            await Task.Delay(100);
+            await Task.Delay(150);
             await GalleryScanBkdView.whenScannerReady();
-            ApplyGallerySettings();
-            GalleryScanBkdView.ScanImage(base64, this);
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ApplyGallerySettings();
+                GalleryScanBkdView.ScanImage(base64, this);
+            });
         }
         finally
         {
@@ -233,4 +285,3 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
         DidFinishScanning(result, Array.Empty<ImageSource>(), originalImageSource);
     }
 }
-
