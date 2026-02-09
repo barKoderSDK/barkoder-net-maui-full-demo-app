@@ -190,6 +190,10 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             if (!IsGalleryMode)
             {
+                if (!await EnsureCameraPermissionAsync())
+                {
+                    return;
+                }
                 ApplySettings();
                 ApplyBarcodeTypes();
                 StartScanning();
@@ -233,6 +237,11 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             return;
         }
 
+        if (!await EnsureCameraPermissionAsync())
+        {
+            return;
+        }
+
         await BKDView.whenScannerReady();
         BKDView.InitCameraProperties();
         ApplySettings();
@@ -252,6 +261,46 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         _galleryPreviewSource = null;
         _galleryPreviewPath = null;
         UpdateResultSheetBindings();
+    }
+
+    private async Task<bool> EnsureCameraPermissionAsync()
+    {
+        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (status != PermissionStatus.Granted)
+        {
+            status = await Permissions.RequestAsync<Permissions.Camera>();
+        }
+
+        if (status == PermissionStatus.Granted)
+        {
+            return true;
+        }
+
+        await DisplayAlert("Permission required", "Please allow camera access to scan barcodes.", "OK");
+        await Shell.Current.GoToAsync("..");
+        return false;
+    }
+
+    private void ApplyVinOcrConfiguration()
+    {
+        var enableVinOcr = Mode == ScannerModes.Vin
+            && DeviceInfo.Platform == DevicePlatform.Android
+            && _enabledTypes.TryGetValue("ocrText", out var ocrEnabled)
+            && ocrEnabled;
+
+        try
+        {
+            _enabledTypes["ocrText"] = enableVinOcr;
+            BKDView.SetCustomOption("enable_ocr_functionality", enableVinOcr ? 1 : 0);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.OCRText, enableVinOcr);
+        }
+        catch (Exception ex)
+        {
+            AppLogger.Warn($"VIN OCR init failed, disabling OCR fallback. {ex.Message}");
+            _enabledTypes["ocrText"] = false;
+            BKDView.SetCustomOption("enable_ocr_functionality", 0);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.OCRText, false);
+        }
     }
 
     private async Task LoadSettingsAsync()
@@ -277,11 +326,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _enabledTypes["idDocument"]  = false;
         }
-        if (Mode == ScannerModes.AnyScan)
-        {
-            _enabledTypes["ocrText"] = false;
-        }
-        if (Mode == ScannerModes.Gallery)
+        if (Mode != ScannerModes.Vin)
         {
             _enabledTypes["ocrText"] = false;
         }
@@ -291,6 +336,8 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
     private void ApplySettings()
     {
+        // Keep preview visible outside ROI; only decode region stays restricted by SetRegionOfInterest.
+        BKDView.SetRoiOverlayBackgroundColor("#00000000");
         BKDView.SetImageResultEnabled(true);
         BKDView.SetLocationInImageResultEnabled(true);
         BKDView.SetLocationInPreviewEnabled(_settings.LocationInPreview);
@@ -320,10 +367,13 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         {
             _enabledTypes["ocrText"] = false;
             BKDView.SetCustomOption("enable_ocr_functionality", 0);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.OCRText, false);
         }
         else if (Mode != ScannerModes.Vin)
         {
+            _enabledTypes["ocrText"] = false;
             BKDView.SetCustomOption("enable_ocr_functionality", 0);
+            BKDView.SetBarcodeTypeEnabled(BarcodeType.OCRText, false);
         }
 
         if (Mode == ScannerModes.Vin)
@@ -336,6 +386,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             BKDView.SetEnableVINRestrictions(true);
             BKDView.SetRegionOfInterestVisible(true);
             BKDView.SetRegionOfInterest(0, 30, 100, 40);
+            ApplyVinOcrConfiguration();
 
             BKDView.SetDecodingSpeed(DecodingSpeed.Slow);
             BKDView.SetBarkoderResolution(BarkoderResolution.FHD);
@@ -442,7 +493,10 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
                 Text = first.TextualData,
                 Type = first.BarcodeTypeName,
                 Image = display,
-                ImagePath = _galleryPreviewPath
+                ImagePath = _galleryPreviewPath,
+                ImageRotationDegrees = BarcodeDisplayHelper.GetPreferredImageRotationDegrees(
+                    first.BarcodeTypeName,
+                    first.Location?.Points?.Select(p => ((double)p.X, (double)p.Y)))
             };
             _ = HistoryService.AddScanAsync(item);
             var currentPage = this;
@@ -508,7 +562,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
 
         if (!_settings.ContinuousScanning)
         {
-            BKDView.StopScanning();
+            BKDView.PauseScanning();
             IsScanningPaused = true;
             FrozenImage.Source = originalImageSource;
         }
@@ -920,9 +974,13 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
                 }
             }
 
-            if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
+            if (Mode != ScannerModes.Vin)
             {
                 _enabledTypes["ocrText"] = false;
+            }
+            else
+            {
+                ApplyVinOcrConfiguration();
             }
 
             UpdateActiveBarcodeText();
@@ -938,19 +996,18 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             stack.Children.Add(CreateSwitchRow(item.Label, enabled, value =>
             {
                 _enabledTypes[item.Id] = value;
-                if (item.Id == "ocrText" && Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
+                if (item.Id == "ocrText" && Mode != ScannerModes.Vin)
                 {
                     return;
                 }
 
-                if (BarcodeTypeMapper.TryGet(item.Id, out var type))
+                if (item.Id == "ocrText")
+                {
+                    ApplyVinOcrConfiguration();
+                }
+                else if (BarcodeTypeMapper.TryGet(item.Id, out var type))
                 {
                     BKDView.SetBarcodeTypeEnabled(type, value);
-                }
-
-                if (item.Id == "ocrText" && Mode == ScannerModes.Vin)
-                {
-                    BKDView.SetCustomOption("enable_ocr_functionality", value ? 1 : 0);
                 }
 
                 UpdateActiveBarcodeText();
@@ -1219,7 +1276,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
         }
         else if (Mode == ScannerModes.Vin)
         {
-            list = list.Where(t => new[] { "code39", "code128", "datamatrix", "qr" }.Contains(t.Id)).ToList();
+            list = list.Where(t => new[] { "code39", "code128", "datamatrix", "qr", "ocrText" }.Contains(t.Id)).ToList();
         }
         else if (Mode == ScannerModes.Mrz)
         {
@@ -1236,7 +1293,7 @@ public partial class ScannerPage : ContentPage, IBarkoderDelegate
             return Enumerable.Empty<(string Id, string Label)>();
         }
 
-        if (Mode != ScannerModes.Vin && Mode != ScannerModes.Gallery)
+        if (Mode != ScannerModes.Vin)
         {
             list = list.Where(t => t.Id != "ocrText").ToList();
         }

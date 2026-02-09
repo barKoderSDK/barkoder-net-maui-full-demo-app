@@ -71,6 +71,10 @@
             "Plugin.Maui.Barkoder": {
               "target": "Package",
               "version": "[1.*, )"
+            },
+            "Xamarin.Google.MLKit.TextRecognition": {
+              "target": "Package",
+              "version": "[116.0.0, )"
             }
           },
           "imports": [
@@ -155,7 +159,7 @@
         "android-x86": {
           "#import": []
         },
-        "iossimulator-x64": {
+        "ios-arm64": {
           "#import": []
         }
       }

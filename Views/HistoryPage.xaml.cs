@@ -75,7 +75,8 @@ public partial class HistoryPage : ContentPage
             ShowPlaceholder = showPlaceholder,
             PlaceholderIcon = placeholder,
             Count = item.Count,
-            ImagePath = item.ImagePath
+            ImagePath = item.ImagePath,
+            ImageRotationDegrees = item.ImageRotationDegrees
         };
     }
 
@@ -94,7 +95,8 @@ public partial class HistoryPage : ContentPage
                 {
                     Text = item.Text,
                     Type = item.Type,
-                    ImagePath = item.ImagePath
+                    ImagePath = item.ImagePath,
+                    ImageRotationDegrees = item.ImageRotationDegrees
                 }
             });
         }
@@ -132,6 +134,7 @@ public partial class HistoryPage : ContentPage
         public string CountText => Count > 1 ? $"({Count})" : string.Empty;
         public bool HasCount => Count > 1;
         public string? ImagePath { get; set; }
+        public double ImageRotationDegrees { get; set; }
     }
 }
 

@@ -51,7 +51,7 @@ public static class ScannerConfig
             }
             else if (mode == ScannerModes.Vin)
             {
-                types[id] = new[] { "code39", "code128", "qr", "datamatrix" }.Contains(id);
+                types[id] = new[] { "code39", "code128", "qr", "datamatrix", "ocrText" }.Contains(id);
             }
             else if (mode == ScannerModes.ArMode)
             {

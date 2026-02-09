@@ -42,6 +42,7 @@ public static class HistoryService
             var existing = history[existingIndex];
             existing.Count += 1;
             existing.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            existing.ImageRotationDegrees = item.ImageRotationDegrees;
             if (!string.IsNullOrEmpty(imagePath))
             {
                 existing.ImagePath = imagePath;
@@ -57,6 +58,7 @@ public static class HistoryService
                 Text = item.Text,
                 Type = item.Type,
                 ImagePath = imagePath,
+                ImageRotationDegrees = item.ImageRotationDegrees,
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Count = 1
             });

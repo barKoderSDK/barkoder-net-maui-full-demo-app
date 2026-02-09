@@ -66,5 +66,9 @@
 		<PackageReference Include="Plugin.Maui.Barkoder" Version="1.*" />
 	</ItemGroup>
 
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<PackageReference Include="Xamarin.Google.MLKit.TextRecognition" Version="116.0.0" />
+	</ItemGroup>
+
 </Project>
 

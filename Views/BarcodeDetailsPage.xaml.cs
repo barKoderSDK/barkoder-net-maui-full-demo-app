@@ -42,20 +42,23 @@ public partial class BarcodeDetailsPage : ContentPage
         if (_item.Image != null)
         {
             BarcodeImage.Source = _item.Image;
+            BarcodeImage.Rotation = _item.ImageRotationDegrees;
             BarcodeImage.IsVisible = true;
             BarcodePlaceholder.IsVisible = false;
         }
         else if (!string.IsNullOrWhiteSpace(_item.ImagePath) && File.Exists(_item.ImagePath))
         {
             BarcodeImage.Source = ImageSource.FromFile(_item.ImagePath);
+            BarcodeImage.Rotation = _item.ImageRotationDegrees;
             BarcodeImage.IsVisible = true;
             BarcodePlaceholder.IsVisible = false;
         }
         else
         {
+            BarcodeImage.Rotation = 0;
             BarcodeImage.IsVisible = false;
             BarcodePlaceholder.IsVisible = true;
-            PlaceholderIcon.Source = Is1D(_item.Type) ? "icon_1d.svg" : "icon_2d.svg";
+            PlaceholderIcon.Source = BarcodeDisplayHelper.Is1D(_item.Type) ? "icon_1d.svg" : "icon_2d.svg";
         }
 
         var isMrz = _item.Type.Equals("mrz", StringComparison.OrdinalIgnoreCase);
@@ -98,17 +101,6 @@ public partial class BarcodeDetailsPage : ContentPage
 
         var url = $"https://www.google.com/search?q={Uri.EscapeDataString(_item.Text)}";
         await Launcher.Default.OpenAsync(url);
-    }
-
-    private static string Normalize(string input)
-    {
-        return Regex.Replace(input, "[^a-zA-Z0-9]", "").ToLowerInvariant();
-    }
-
-    private static bool Is1D(string type)
-    {
-        var normalized = Normalize(type);
-        return BarcodeConstants.BarcodeTypes1D.Any(t => Normalize(t.Label) == normalized || Normalize(t.Id) == normalized);
     }
 
     private static List<(string Id, string Label, string Value)> ParseMrzData(string text)

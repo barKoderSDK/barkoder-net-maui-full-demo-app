@@ -6,5 +6,6 @@ public class ScannedItem
     public string Type { get; set; } = string.Empty;
     public ImageSource? Image { get; set; }
     public string? ImagePath { get; set; }
+    public double ImageRotationDegrees { get; set; }
 }
 

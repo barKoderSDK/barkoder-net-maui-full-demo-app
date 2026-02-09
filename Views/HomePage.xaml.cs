@@ -12,6 +12,8 @@ namespace BarkoderMaui.Views;
 
 public partial class HomePage : ContentPage, IBarkoderDelegate
 {
+    private static bool _cameraPermissionPrimed;
+
     public ObservableCollection<HomeSection> Sections { get; } =
         new ObservableCollection<HomeSection>(BarcodeConstants.HomeSections);
 
@@ -36,6 +38,7 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        await PrimeCameraPermissionAsync();
         if (!string.IsNullOrWhiteSpace(_pendingGalleryBase64) && !_isGalleryScanInProgress && !_isPickingGallery)
         {
             await StartPendingGalleryScanAsync();
@@ -195,6 +198,21 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
 #endif
     }
 
+    private static async Task PrimeCameraPermissionAsync()
+    {
+        if (_cameraPermissionPrimed)
+        {
+            return;
+        }
+
+        _cameraPermissionPrimed = true;
+        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (status != PermissionStatus.Granted)
+        {
+            await Permissions.RequestAsync<Permissions.Camera>();
+        }
+    }
+
     private async Task StartPendingGalleryScanAsync()
     {
         if (string.IsNullOrWhiteSpace(_pendingGalleryBase64) || _isGalleryScanInProgress)
@@ -268,7 +286,10 @@ public partial class HomePage : ContentPage, IBarkoderDelegate
         {
             Text = first.TextualData,
             Type = first.BarcodeTypeName,
-            Image = display
+            Image = display,
+            ImageRotationDegrees = BarcodeDisplayHelper.GetPreferredImageRotationDegrees(
+                first.BarcodeTypeName,
+                first.Location?.Points?.Select(p => ((double)p.X, (double)p.Y)))
         };
 
         MainThread.BeginInvokeOnMainThread(async () =>

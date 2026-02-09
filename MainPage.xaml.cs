@@ -34,6 +34,7 @@ public partial class MainPage : ContentPage, IBarkoderDelegate
 	private void SetBarkoderSettings()
 	{
 		// These are optional settings, otherwise default values will be used
+		BKDView.SetRoiOverlayBackgroundColor("#00000000");
 		BKDView.SetImageResultEnabled(true);
 		BKDView.SetLocationInPreviewEnabled(true);
 		BKDView.SetRegionOfInterestVisible(true);
