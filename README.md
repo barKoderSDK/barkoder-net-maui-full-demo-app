@@ -1,77 +1,88 @@
-# barkoder_app_maui
+# barKoder .NET MAUI Barcode Scanner SDK
 
-`.NET MAUI` implementation of the Barkoder demo app, keeping the same general screen structure and scanner modes:
+Integrate enterprise barcode scanning into **.NET MAUI applications** with `Plugin.Maui.Barkoder`. The plugin brings the native barKoder scanning engine to .NET MAUI projects and provides a XAML/C# integration path for Android and iOS applications, with Windows support available through barKoder's .NET MAUI offering where applicable.
 
-- Home
-- Scanner
-- Barcode Details
-- Recent Scans (History)
-- About
+barKoder is built for demanding mobile data-capture workflows including logistics, inventory, manufacturing, retail, automotive and identity verification.
 
-## Implemented Barkoder Features
+## Quick links
 
-- License key loading via `BARKODER_LICENSE_KEY` (`.env` packaged as `app.env` or environment variable)
-- Native Barkoder view setup and handler registration (`BarkoderView`, `BarkoderViewHandler`)
-- Live scanning (`StartScanning`, pause/resume flow, `StopScanning` when needed)
-- Gallery image scanning (`ScanImage`) with image picker integration
-- Barcode type enable/disable with mode-specific presets
-- Preset modes: `1D`, `2D`, `Continuous`, `MultiScan`, `VIN`, `DPM`, `DeBlur`, `DotCode`, `AR`, `MRZ`, `Gallery`, `AnyScan`
-- Runtime scanner settings (ROI, decoding speed, resolution, continuous scanning, duplicate threshold, AR options, etc.)
-- Result callbacks via `IBarkoderDelegate` (`DidFinishScanning`)
-- Scan history persistence (including saved preview images) and per-mode settings persistence
+- **.NET MAUI Barcode Scanner SDK:** [https://barkoder.com/barcode-scanner-sdk/frameworks/maui](https://barkoder.com/barcode-scanner-sdk/frameworks/maui)
+- **NuGet package:** [https://www.nuget.org/packages/Plugin.Maui.Barkoder](https://www.nuget.org/packages/Plugin.Maui.Barkoder)
+- **Installation guide:** [https://barkoder.com/docs/v1/maui/net-maui-installation](https://barkoder.com/docs/v1/maui/net-maui-installation)
+- **Example:** [https://barkoder.com/docs/v1/maui/net-maui-example](https://barkoder.com/docs/v1/maui/net-maui-example)
+- **API reference:** [https://barkoder.com/docs/v1/maui/net-maui-api-reference](https://barkoder.com/docs/v1/maui/net-maui-api-reference)
+- **Full demo app:** [https://github.com/barKoderSDK/barkoder-net-maui-full-demo-app](https://github.com/barKoderSDK/barkoder-net-maui-full-demo-app)
+- **Free trial:** [https://barkoder.com/trial](https://barkoder.com/trial)
 
-## Prerequisites
+## Key capabilities
 
-- .NET SDK `8.0.417` (see `global.json`)
-- .NET MAUI workload (Android/iOS)
-- Android Studio + Android SDK (for Android builds)
-- Xcode (for iOS builds, macOS only)
-- Barkoder license key
+barKoder is designed for production barcode capture workflows where speed and decode reliability matter. Depending on the license and configuration, the SDK supports capabilities such as:
 
-## Setup
+- 30+ 1D and 2D barcode symbologies, including QR Code, Data Matrix, PDF417, Code 128, Code 39, EAN/UPC, Aztec, DotCode and GS1 formats
+- [Direct Part Marking (DPM) scanning](https://barkoder.com/barcode-scanner-sdk/dpm) for difficult Data Matrix codes on metal, plastic and other industrial surfaces
+- [Batch MultiScan](https://barkoder.com/barcode-scanner-sdk/batch-multiscan) for decoding multiple barcodes in a single camera view
+- [VIN barcode scanning](https://barkoder.com/barcode-scanner-sdk/vin-scanning) for automotive workflows
+- [MRZ scanning](https://barkoder.com/barcode-scanner-sdk/mrz) for passports, ID cards and travel documents
+- Continuous scanning, image/gallery scanning and configurable regions of interest
+- Advanced decoding for damaged, deformed, low-quality and blurry barcodes
+- On-device scanning for normal mobile scanning workflows
 
-1. Restore workloads (first time only):
-   ```bash
-   dotnet workload install maui maui-android maui-ios
-   ```
-2. Restore dependencies:
-   ```bash
-   dotnet restore barkoder_app_maui.sln
-   ```
-3. Create a `.env` file in the project root and set:
-   ```env
-   BARKODER_LICENSE_KEY=YOUR_BARKODER_LICENSE_KEY
-   ```
-4. Build for Android:
-   ```bash
-   dotnet build barkoder_app_maui.sln -f net8.0-android34.0
-   ```
-5. Build for iOS:
-   ```bash
-   dotnet build barkoder_app_maui.sln -f net8.0-ios18.0
-   ```
+For the complete feature set and platform-specific configuration options, use the official documentation linked below.
 
-## Useful Commands
 
-- Run Android (connected device/emulator):
-  ```bash
-  dotnet build _TmpMaui.csproj -t:Run -f net8.0-android34.0
-  ```
-- Run iOS (macOS + simulator/device):
-  ```bash
-  dotnet build _TmpMaui.csproj -t:Run -f net8.0-ios18.0
-  ```
-- Clean:
-  ```bash
-  dotnet clean barkoder_app_maui.sln
-  ```
+## Installation
 
-## Notes
+Install the package from NuGet:
 
-- Windows target is intentionally not included in this project because the Barkoder MAUI package used here does not support `net8.0-windows`.
+```bash
+dotnet add package Plugin.Maui.Barkoder
+```
 
-## Reference Used
+or add `Plugin.Maui.Barkoder` through your IDE's NuGet package manager.
 
-- Installation: https://barkoder.com/docs/v1/maui/net-maui-installation
-- API: https://barkoder.com/docs/v1/maui/net-maui-api-reference
-- Examples: https://barkoder.com/docs/v1/maui/net-maui-example
+Follow the [official .NET MAUI installation guide](https://barkoder.com/docs/v1/maui/net-maui-installation) for handler registration, platform permissions and project configuration.
+
+## Add `BarkoderView` in XAML
+
+Declare the barKoder namespace:
+
+```xml
+xmlns:barkoder="clr-namespace:Plugin.Maui.Barkoder.Controls;assembly=Plugin.Maui.Barkoder"
+```
+
+Then add the scanner view:
+
+```xml
+<barkoder:BarkoderView
+    x:Name="barkoderView"
+    LicenseKey="YOUR_LICENSE_KEY" />
+```
+
+Use the [MAUI example](https://barkoder.com/docs/v1/maui/net-maui-example) and [API reference](https://barkoder.com/docs/v1/maui/net-maui-api-reference) for current scanning, configuration and result-handling code.
+
+## Windows
+
+This repository contains Windows-related project material in addition to the mobile plugin. Check the [.NET MAUI product page](https://barkoder.com/barcode-scanner-sdk/frameworks/maui) or contact barKoder support for the current Windows package/distribution applicable to your project.
+
+## Trial license
+
+You can evaluate barKoder in your own application with a free trial license:
+
+**[Get a free barKoder SDK trial](https://barkoder.com/trial)**
+
+The SDK can be initialized without a valid license for integration testing, but decoded results may be partially masked or marked as unlicensed. Use a valid trial or production license for complete results and licensed functionality.
+
+Do not publish a trial license in a production application or public source repository.
+
+
+## Support
+
+Need help with integration or testing?
+
+- Documentation: [https://barkoder.com/docs/v1/home](https://barkoder.com/docs/v1/home)
+- Technical support: [support@barkoder.com](mailto:support@barkoder.com)
+- Sales and licensing: [sales@barkoder.com](mailto:sales@barkoder.com)
+
+## License
+
+See the `LICENSE` file in this repository for the terms applicable to the repository contents. Use of the barKoder SDK itself is subject to the applicable barKoder license agreement.
